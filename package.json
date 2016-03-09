@@ -1,0 +1,23 @@
+{
+  "name": "redux-form-wrapper",
+  "version": "0.0.1",
+  "description": "Compose controlled forms in React.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rhythnic/react-form-wrapper.git"
+  },
+  "keywords": [
+    "React",
+    "Forms",
+    "Serialize",
+    "Controlled forms"
+  ],
+  "authors": [
+    "Nick Baroni <nick@rhythnic.com> (https://github.com/rhythnic)"
+  ],
+  "bugs": {
+    "url": "https://github.com/rhythnic/react-form-wrapper/issues"
+  },
+  "license": "MIT"
+}
