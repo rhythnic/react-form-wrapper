@@ -1,5 +1,5 @@
 {
-  "name": "redux-form-wrapper",
+  "name": "react-form-wrapper",
   "version": "0.0.1",
   "description": "Compose controlled forms in React.",
   "main": "index.js",
