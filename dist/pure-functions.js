@@ -3,59 +3,90 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.flattenPath = flattenPath;
+exports.createPathObjects = createPathObjects;
 exports.update = update;
-exports.getPatchFromEvent = getPatchFromEvent;
+exports.buildPatchFromEvent = buildPatchFromEvent;
 
 var _immutable = require('immutable');
 
-function update(state, evt, delimiter) {
-  var _getPatchFromEvent = getPatchFromEvent(evt);
+var _immutable2 = _interopRequireDefault(_immutable);
 
-  var op = _getPatchFromEvent.op;
-  var path = _getPatchFromEvent.path;
-  var value = _getPatchFromEvent.value;
+var _lodash = require('lodash');
 
-  path = path.split(delimiter);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function flattenPath(path) {
+  return (0, _lodash.map)(path, function (item) {
+    return Array.isArray(item) ? item[0] : item;
+  });
+}
+
+function createPathObjects(state, path) {
+  var i = 0,
+      key = undefined,
+      isArr = undefined,
+      value = undefined,
+      setPath = [];
+  for (; i < path.length - 1; i++) {
+    isArr = (0, _lodash.isArray)(path[i]);
+    key = isArr ? path[i][0] : path[i];
+    setPath[i] = key;
+    if ((0, _lodash.isNil)(state.getIn(setPath))) {
+      state = state.setIn(setPath, isArr ? new _immutable.List() : new _immutable.Map());
+    }
+  }
+  return state;
+}
+
+function update(state, _ref) {
+  var op = _ref.op;
+  var path = _ref.path;
+  var value = _ref.value;
+
+  state = createPathObjects(state, path);
+  path = flattenPath(path);
+  if (op !== 'remove' && !(0, _lodash.isNil)(value)) {
+    if ((0, _lodash.isArray)(value)) {
+      value = (0, _immutable.List)(value);
+    } else if (value.constructor === Object) {
+      value = (0, _immutable.Map)(value);
+    }
+  }
   switch (op) {
     case 'replace':
       return state.updateIn(path, function () {
         return value;
       });
     case 'add':
-      return state.updateIn(path, (0, _immutable.List)(), function (val) {
-        return val.push(value);
+      return state.updateIn(path, (0, _immutable.List)(), function (list) {
+        return list.push(value);
       });
     case 'remove':
-      return state.updateIn(path, (0, _immutable.List)(), function (val) {
-        return val.delete(val.indexOf(value));
+      return _.isUndefined(value) ? state.deleteIn(path) : state.updateIn(path, (0, _immutable.List)(), function (list) {
+        return list.delete(list.indexOf(value));
       });
     default:
       return state;
   }
 }
 
-function getPatchFromEvent(evt) {
-  if (!evt.target) {
-    return evt;
-  }
+function buildPatchFromEvent(evt, path) {
   var _evt$target = evt.target;
   var type = _evt$target.type;
-  var name = _evt$target.name;
   var value = _evt$target.value;
   var checked = _evt$target.checked;
 
   switch (type) {
     case 'checkbox':
-      var fieldType = evt.target.dataset.type;
-      return fieldType === 'array' ? { op: checked ? 'add' : 'remove', path: name, value: value } : { op: 'replace', path: name, value: checked };
+      return (0, _lodash.isArray)((0, _lodash.last)(path)) ? { op: checked ? 'add' : 'remove', path: path, value: value } : { op: 'replace', path: path, value: checked };
     case 'select-multiple':
-      value = [].map.call(evt.target.querySelectorAll('option:checked'), function (o) {
-        return o.value;
-      });
-      return { op: 'replace', path: name, value: new _immutable.List(value) };
+      value = (0, _lodash.map)(evt.target.querySelectorAll('option:checked'), 'value');
+      return { op: 'replace', path: path, value: value };
+    case 'number':
+      return { path: path, op: 'replace', value: parseInt(value, 10) };
     default:
-      return { path: name, op: 'replace', value: value };
+      return { path: path, op: 'replace', value: value };
   }
 }
 

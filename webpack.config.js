@@ -4,7 +4,7 @@ module.exports = {
   entry: [
     'webpack-dev-server/client?http://localhost:8080',
     'webpack/hot/only-dev-server',
-    './examples/basic/index.js'
+    './examples/index.js'
   ],
   module: {
     loaders: [{
@@ -17,7 +17,7 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   output: {
-    path: __dirname + '/examples/compiled',
+    path: __dirname + '/compiled-examples',
     publicPath: '/',
     filename: 'bundle.js'
   },
