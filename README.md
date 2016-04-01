@@ -9,7 +9,7 @@ forms into smaller groups of inputs.
 
 This module is being published prematurely as a means of potentially getting
 feedback to improve the API.  It's possible that the API might change slightly.
-Use at your own risk.  There aren't currently any tests.
+Use at your own risk.  There aren't currently many tests.
 
 
 ## How it works
