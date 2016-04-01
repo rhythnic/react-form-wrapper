@@ -46,10 +46,12 @@ function update(state, _ref) {
 
   state = createPathObjects(state, path);
   path = flattenPath(path);
-  if ((0, _lodash.isArray)(value)) {
-    value = (0, _immutable.List)(value);
-  } else if (value.constructor === Object) {
-    value = (0, _immutable.Map)(value);
+  if (op !== 'remove' && !(0, _lodash.isNil)(value)) {
+    if ((0, _lodash.isArray)(value)) {
+      value = (0, _immutable.List)(value);
+    } else if (value.constructor === Object) {
+      value = (0, _immutable.Map)(value);
+    }
   }
   switch (op) {
     case 'replace':

@@ -21,10 +21,12 @@ export function createPathObjects(state, path) {
 export function update (state, { op, path, value }) {
   state = createPathObjects(state, path);
   path = flattenPath(path);
-  if (isArray(value)) {
-    value = List(value);
-  } else if (value.constructor === Object) {
-    value = Map(value);
+  if (op !== 'remove' && !isNil(value)) {
+    if (isArray(value)) {
+      value = List(value);
+    } else if (value.constructor === Object) {
+      value = Map(value);
+    }
   }
   switch(op) {
     case 'replace':
