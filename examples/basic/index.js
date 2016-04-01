@@ -1,5 +1,15 @@
 import React from 'react';
-import {render} from 'react-dom';
-import App from './components/App'
+import FormWrapper from '../form-wrapper';
+import Profile from './Profile';
+import Address from './Address';
 
-render(<App />, document.getElementById('app'))
+function MyForm ({ onSubmit, onReset, getField }) {
+  return <form { ...{ onSubmit, onReset } }>
+    <Profile { ...getField('profile') } />
+    <Address { ...getField('address') } />
+    <button type="submit">Submit</button>
+    <button type="reset">Reset</button>
+  </form>;
+}
+
+export default FormWrapper()(MyForm);

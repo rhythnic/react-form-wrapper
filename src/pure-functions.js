@@ -1,35 +1,59 @@
-import {List, Map} from 'immutable';
+import Immutable, {List, Map} from 'immutable';
+import { map, last, isObject, isArray, isUndefined, isNil } from 'lodash';
 
-export function update (state, evt, delimiter) {
-  let {op, path, value} = getPatchFromEvent(evt);
-  path = path.split(delimiter);
+export function flattenPath(path) {
+  return map(path, item => Array.isArray(item) ? item[0] : item);
+}
 
+export function createPathObjects(state, path) {
+  let i = 0, key, isArr, value, setPath = [];
+  for (; i < path.length - 1; i++) {
+    isArr = isArray(path[i]);
+    key = isArr ? path[i][0] : path[i];
+    setPath[i] = key;
+    if (isNil(state.getIn(setPath))) {
+      state = state.setIn(setPath, isArr ? new List() : new Map());
+    }
+  }
+  return state;
+}
+
+export function update (state, { op, path, value }) {
+  state = createPathObjects(state, path);
+  path = flattenPath(path);
+  if (isArray(value)) {
+    value = List(value);
+  } else if (value.constructor === Object) {
+    value = Map(value);
+  }
   switch(op) {
     case 'replace':
       return state.updateIn(path, () => value);
     case 'add':
-      return state.updateIn(path, List(), (val) => val.push(value));
+      return state.updateIn(path, List(), (list) => list.push(value));
     case 'remove':
-      return state.updateIn(path, List(), (val) => val.delete(val.indexOf(value)));
+      return _.isUndefined(value)
+        ? state.deleteIn(path)
+        : state.updateIn(path, List(), (list) => list.delete(list.indexOf(value)));
     default:
       return state;
   }
 }
 
-export function getPatchFromEvent(evt) {
-  if (!evt.target) { return evt; }
-  let { type, name, value, checked } = evt.target;
+export function buildPatchFromEvent(evt, path) {
+  let { type, value, checked } = evt.target;
   switch(type) {
     case 'checkbox':
-      const fieldType = evt.target.dataset.type;
-      return fieldType === 'array'
-        ? { op: checked ? 'add' : 'remove', path: name, value }
-        : { op: 'replace', path: name, value: checked };
+      return isArray(last(path))
+        ? { op: checked ? 'add' : 'remove', path, value }
+        : { op: 'replace', path, value: checked };
     case 'select-multiple':
-      value = [].map.call(evt.target.querySelectorAll('option:checked'), o => o.value);
-      return {op: 'replace', path: name, value: new List(value)};
+      value = map(evt.target.querySelectorAll('option:checked'), 'value');
+      return { op: 'replace', path, value };
+    case 'number':
+      return { path, op: 'replace', value: parseInt(value, 10) };
     default:
-      return { path: name, op: 'replace', value }
+      return { path, op: 'replace', value };
   }
 }
 

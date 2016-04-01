@@ -1,20 +1,22 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import * as classMethods from './class-methods';
+import { methodsForWrappedComponent } from './class-methods';
 
-export default schema => WrappedComponent => {
+export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
   class Form extends Component {
     constructor(props) {
       super(props);
 
-      for (let method in classMethods) {
-        this[method] = classMethods[method].bind(this);
+      for (let method in methodsForWrappedComponent) {
+        this[method] = methodsForWrappedComponent[method].bind(this);
       }
 
-      //this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
-      this.schema = schema;
+      this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+      this._delimiter = delimiter;
+      this._schema = schema;
+      this._paths = {};
       this.state = this.initialState(props);
     }
 
@@ -36,19 +38,21 @@ export default schema => WrappedComponent => {
       return props.onChange ? {} : {value: Immutable.fromJS(props.value)}
     }
 
-    getValue(opts = {}) {
+    getValue({ toJS = true } = {}) {
       const value = (this.state && this.state.value) || this.props.value;
-      return value && (opts.toJS ? value.toJS() : value);
+      return value && (toJS ? value.toJS() : value);
     }
 
     getProps() {
       return Object.assign({}, this.props, {
         onSubmit: this.submitHandler,
         onChange: this.changeHandler,
-        onReset: this.resetHandler,
+        onReset:  this.resetHandler,
+        getName:  this.getName,
         getField: this.getField,
         getValue: this.getInValue,
-        value: this.getValue() });
+        value:    this.getValue( {toJS: false} )
+      });
     }
 
     render() {
@@ -61,14 +65,12 @@ export default schema => WrappedComponent => {
     onReset: PropTypes.func,
     onChange: PropTypes.func,
     value: PropTypes.object,
-    name: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    delimiter: PropTypes.string
+    name: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
   }
 
   Form.defaultProps = {
     value: {},
-    name: null,
-    delimiter: '.'
+    name: null
   }
 
   return Form;
