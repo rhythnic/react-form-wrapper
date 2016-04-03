@@ -43,20 +43,26 @@ export function removeItem(path, index) {
   changeHandler.call(this, { op: 'remove', path: [...path, index] });
 }
 
+export function makeField(name, childName) {
+  const path = getPath.call(this, name);
+  const field = {
+    name,
+    onChange: this.changeHandler,
+    at: getFieldAt.bind(this, childName)
+  }
+  if (isArrayField.call(this, name)) {
+    field.push = pushItem.bind(this, path);
+    field.remove = removeItem.bind(this, path);
+  }
+  this._fields[name] = field;
+  return field;
+}
+
 export function getField(childName, props = {}, opts = {}) {
   const name = getName.call(this, childName);
-  let field = this._fields[name];
-  if (!field) {
-    field = {
-      name,
-      onChange: this.changeHandler,
-      at: getFieldAt.bind(this, childName)
-    }
-    if (isArrayField.call(this, name)) {
-      field.push = pushItem.bind(this, name);
-      field.remove = removeItem.bind(this, name);
-    }
-    this._fields[name] = field;
+  let field = this._fields[name] || makeField.call(this, name, childName);
+  if (props.multiple) {
+    opts = assign({toJS: true}, opts);
   }
   const base = {
     value: getInValue.call(this, childName, opts)
@@ -118,12 +124,14 @@ export function getInValue(name, opts = {}) {
   let value;
   if (ctx) {
     value = getValueInContext.call(this, ctx, name);
-    value = List.isList(value) || (opts.toJS && Map.isMap(value))
-      ? value.toJS()
-      : value;
   }
-  return isUndefined(value) && isArrayField.call(this, name)
-    ? [] : value;
+  if (isUndefined(value) && isArrayField.call(this, name)) {
+    value = List();
+  }
+  if (opts.toJS && (List.isList(value) || Map.isMap(value))) {
+    value = value.toJS();
+  }
+  return value;
 }
 
 export function getValueInContext(ctx, name) {
