@@ -8,6 +8,7 @@ exports.isArrayField = isArrayField;
 exports.getPath = getPath;
 exports.pushItem = pushItem;
 exports.removeItem = removeItem;
+exports.makeField = makeField;
 exports.getField = getField;
 exports.getFieldAt = getFieldAt;
 exports.getName = getName;
@@ -67,23 +68,29 @@ function removeItem(path, index) {
   changeHandler.call(this, { op: 'remove', path: [].concat(_toConsumableArray(path), [index]) });
 }
 
+function makeField(name, childName) {
+  var path = getPath.call(this, name);
+  var field = {
+    name: name,
+    onChange: this.changeHandler,
+    at: getFieldAt.bind(this, childName)
+  };
+  if (isArrayField.call(this, name)) {
+    field.push = pushItem.bind(this, path);
+    field.remove = removeItem.bind(this, path);
+  }
+  this._fields[name] = field;
+  return field;
+}
+
 function getField(childName) {
   var props = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
   var opts = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
   var name = getName.call(this, childName);
-  var field = this._fields[name];
-  if (!field) {
-    field = {
-      name: name,
-      onChange: this.changeHandler,
-      at: getFieldAt.bind(this, childName)
-    };
-    if (isArrayField.call(this, name)) {
-      field.push = pushItem.bind(this, name);
-      field.remove = removeItem.bind(this, name);
-    }
-    this._fields[name] = field;
+  var field = this._fields[name] || makeField.call(this, name, childName);
+  if (props.multiple) {
+    opts = (0, _lodash.assign)({ toJS: true }, opts);
   }
   var base = {
     value: getInValue.call(this, childName, opts)
@@ -160,9 +167,14 @@ function getInValue(name) {
   var value = undefined;
   if (ctx) {
     value = getValueInContext.call(this, ctx, name);
-    value = _immutable.List.isList(value) || opts.toJS && _immutable.Map.isMap(value) ? value.toJS() : value;
   }
-  return (0, _lodash.isUndefined)(value) && isArrayField.call(this, name) ? [] : value;
+  if ((0, _lodash.isUndefined)(value) && isArrayField.call(this, name)) {
+    value = (0, _immutable.List)();
+  }
+  if (opts.toJS && (_immutable.List.isList(value) || _immutable.Map.isMap(value))) {
+    value = value.toJS();
+  }
+  return value;
 }
 
 function getValueInContext(ctx, name) {

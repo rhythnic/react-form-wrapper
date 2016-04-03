@@ -1,3 +1,3 @@
-import FormWrapper, { update as updateForm } from '../src'
-export default FormWrapper
+import FormWrapper, { update as updateForm } from '../dist';
+export default FormWrapper;
 export const update = updateForm;
