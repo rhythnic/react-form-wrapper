@@ -4,10 +4,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.methodsForWrappedComponent = undefined;
+exports.isArrayField = isArrayField;
 exports.getPath = getPath;
 exports.pushItem = pushItem;
 exports.removeItem = removeItem;
 exports.getField = getField;
+exports.getFieldAt = getFieldAt;
 exports.getName = getName;
 exports.changeHandler = changeHandler;
 exports.submitHandler = submitHandler;
@@ -32,6 +34,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 // ***************************************************************
 
 var PATH_RE = /\[([\d]*)\]/;
+
+function isArrayField(name) {
+  return (0, _lodash.isArray)((0, _lodash.last)(getPath.call(this, name)));
+}
 
 function getPath(name) {
   if (!(name in this._paths)) {
@@ -62,24 +68,38 @@ function removeItem(path, index) {
 }
 
 function getField(childName) {
-  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var props = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var opts = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
   var name = getName.call(this, childName);
-  var path = getPath.call(this, name);
-  var value = getInValue.call(this, childName, opts);
+  var field = this._fields[name];
+  if (!field) {
+    field = {
+      name: name,
+      onChange: this.changeHandler,
+      at: getFieldAt.bind(this, childName)
+    };
+    if (isArrayField.call(this, name)) {
+      field.push = pushItem.bind(this, name);
+      field.remove = removeItem.bind(this, name);
+    }
+    this._fields[name] = field;
+  }
   var base = {
-    name: name,
-    value: value,
-    onChange: this.changeHandler
+    value: getInValue.call(this, childName, opts)
   };
-  if (typeof value === 'boolean') {
-    base.checked = value;
+  if (typeof base.value === 'boolean') {
+    base.checked = base.value;
   }
-  if ((0, _lodash.isArray)((0, _lodash.last)(path))) {
-    base.push = pushItem.bind(this, path);
-    base.remove = removeItem.bind(this, path);
+  return (0, _lodash.assign)(base, field, props);
+}
+
+function getFieldAt(parentName, childName) {
+  for (var _len = arguments.length, other = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+    other[_key - 2] = arguments[_key];
   }
-  return base;
+
+  return getField.call.apply(getField, [this, '' + parentName + this._delimiter + childName].concat(other));
 }
 
 function getName(childName) {
@@ -137,18 +157,18 @@ function getInValue(name) {
   var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
   var ctx = this.state && this.state.value || this.props.value;
+  var value = undefined;
   if (ctx) {
-    var value = getValueInContext.call(this, ctx, name);
-    if ((0, _lodash.isUndefined)(value) && (0, _lodash.isArray)((0, _lodash.last)(getPath.call(this, name)))) {
-      value = [];
-    }
-    return _immutable.List.isList(value) || opts.toJS && _immutable.Map.isMap(value) ? value.toJS() : value;
+    value = getValueInContext.call(this, ctx, name);
+    value = _immutable.List.isList(value) || opts.toJS && _immutable.Map.isMap(value) ? value.toJS() : value;
   }
+  return (0, _lodash.isUndefined)(value) && isArrayField.call(this, name) ? [] : value;
 }
 
 function getValueInContext(ctx, name) {
   var path = (0, _pureFunctions.flattenPath)(getPath.call(this, name));
-  return ctx.getIn(path);
+  var result = ctx.getIn(path);
+  return result;
 }
 
 var methodsForWrappedComponent = exports.methodsForWrappedComponent = {

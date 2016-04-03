@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.update = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -14,11 +15,15 @@ var _immutable = require('immutable');
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
+var _lodash = require('lodash');
+
 var _reactAddonsPureRenderMixin = require('react-addons-pure-render-mixin');
 
 var _reactAddonsPureRenderMixin2 = _interopRequireDefault(_reactAddonsPureRenderMixin);
 
 var _classMethods = require('./class-methods');
+
+var _pureFunctions = require('./pure-functions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27,6 +32,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var update = exports.update = _pureFunctions.update;
 
 exports.default = function () {
   var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -51,6 +58,7 @@ exports.default = function () {
         _this._delimiter = delimiter;
         _this._schema = schema;
         _this._paths = {};
+        _this._fields = {};
         _this.state = _this.initialState(props);
         return _this;
       }
@@ -91,7 +99,7 @@ exports.default = function () {
       }, {
         key: 'getProps',
         value: function getProps() {
-          return Object.assign({}, this.props, {
+          return (0, _lodash.assign)({}, this.props, {
             onSubmit: this.submitHandler,
             onChange: this.changeHandler,
             onReset: this.resetHandler,
@@ -120,7 +128,6 @@ exports.default = function () {
     };
 
     Form.defaultProps = {
-      value: {},
       name: null
     };
 

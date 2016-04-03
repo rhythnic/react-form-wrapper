@@ -3,7 +3,7 @@ import React, { Component, PropTypes, createElement } from 'react';
 export default class App extends Component {
   constructor(...args) {
     super(...args);
-    this.state = { selectedExample: 2 };
+    this.state = { selectedExample: 0 };
   }
   onSubmit(data) {
     if (this.state.selectedExample === 2) { // redux example
@@ -18,7 +18,12 @@ export default class App extends Component {
     return <div>
       <ul>
         {exampleForms.map((ex, i) => <li key={i}>
-          <a href="#" onClick={() => this.setState({selectedExample: i })}>{ex.label}</a>
+          <a
+            href="#"
+            style={ { color: i === this.state.selectedExample ? '#000' : '#b4b4b4' } }
+            onClick={() => this.setState({selectedExample: i })} >
+            {ex.label}
+          </a>
         </li> )}
       </ul>
       <hr/>
