@@ -62,7 +62,7 @@ export function getField(childName, props = {}, opts = {}) {
     value: getInValue.call(this, childName, opts)
   };
   if (typeof base.value === 'boolean') {
-    base.checked = value;
+    base.checked = base.value;
   }
   return assign(base, field, props);
 }

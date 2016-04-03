@@ -1,11 +1,15 @@
-import React, { Component, createElement } from 'react';
+import React, { Component, PropTypes, createElement } from 'react';
 
 export default class App extends Component {
   constructor(...args) {
     super(...args);
-    this.state = { selectedExample: 1 };
+    this.state = { selectedExample: 2 };
   }
   onSubmit(data) {
+    if (this.state.selectedExample === 2) { // redux example
+      const {store} = this.context;
+      data = store.getState().get('myForm').toJS();
+    }
     console.log(data);
   }
   render() {
@@ -23,4 +27,8 @@ export default class App extends Component {
       }))}
     </div>
   }
+}
+
+App.contextTypes = {
+  store: PropTypes.object
 }

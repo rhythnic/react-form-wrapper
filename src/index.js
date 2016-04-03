@@ -1,7 +1,11 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
+import {assign} from 'lodash';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { methodsForWrappedComponent, isArrayField } from './class-methods';
+import { update as updateForm } from './pure-functions';
+
+export const update = updateForm;
 
 export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
@@ -45,7 +49,7 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     }
 
     getProps() {
-      return Object.assign({}, this.props, {
+      return assign({}, this.props, {
         onSubmit: this.submitHandler,
         onChange: this.changeHandler,
         onReset:  this.resetHandler,
