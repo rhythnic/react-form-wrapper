@@ -11,7 +11,7 @@ function Profile({ getField }) {
         {['cable', 'hot water', 'sun chairs'].map((item, i) => <li key={i}>
           <span>{item}</span>
           <input {...features} type="checkbox" value={item}
-            checked={features.value && features.value.includes(item)} />
+            checked={features.value.includes(item)} />
         </li>)}
       </ul>
     </div>

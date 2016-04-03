@@ -1,7 +1,7 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import { methodsForWrappedComponent } from './class-methods';
+import { methodsForWrappedComponent, isArrayField } from './class-methods';
 
 export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
@@ -17,6 +17,7 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this._delimiter = delimiter;
       this._schema = schema;
       this._paths = {};
+      this._fields = {};
       this.state = this.initialState(props);
     }
 
@@ -69,7 +70,6 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
   }
 
   Form.defaultProps = {
-    value: {},
     name: null
   }
 

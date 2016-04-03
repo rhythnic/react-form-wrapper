@@ -3,7 +3,7 @@ import React, { Component, createElement } from 'react';
 export default class App extends Component {
   constructor(...args) {
     super(...args);
-    this.state = { selectedExample: 0 };
+    this.state = { selectedExample: 1 };
   }
   onSubmit(data) {
     console.log(data);
