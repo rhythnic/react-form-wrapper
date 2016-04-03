@@ -122,9 +122,18 @@ export default FormWrapper({ delimiter: '/' })(MyForm);
     * appends name to name of wrapped parent component, using the delimiter
   * getValue(name)
     * get value of name within the value received by parent form-wrapper
-  * getField
+  * getField(name, props, options)
     * convenience function that bundles onChange, value(from getValue), and name(from getName)
-    * also attaches push and remove methods if name indicates array (name ends with '[]')
+    * any props returned by getField are overwritten by the props passed to getField
+    * pass { toJS: true } in options to convert Immutable.js Map to {} or List to []
+
+**getField result methods**
+
+  * at
+    * getField('user').at('profile') is the same as getField('user.profile')
+  * Array methods, when getField is called on an array field
+    * push(item)
+    * remove(index)
 
 ## Tips
 

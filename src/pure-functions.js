@@ -19,6 +19,7 @@ export function createPathObjects(state, path) {
 }
 
 export function update (state, { op, path, value }) {
+  //console.log(op, path, value, state.toJS());
   state = createPathObjects(state, path);
   path = flattenPath(path);
   if (op !== 'remove' && !isNil(value)) {

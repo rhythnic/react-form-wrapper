@@ -1,4 +1,4 @@
-import React, { Component, createElement } from 'react';
+import React, { Component, PropTypes, createElement } from 'react';
 
 export default class App extends Component {
   constructor(...args) {
@@ -6,6 +6,10 @@ export default class App extends Component {
     this.state = { selectedExample: 0 };
   }
   onSubmit(data) {
+    if (this.state.selectedExample === 2) { // redux example
+      const {store} = this.context;
+      data = store.getState().get('myForm').toJS();
+    }
     console.log(data);
   }
   render() {
@@ -14,7 +18,12 @@ export default class App extends Component {
     return <div>
       <ul>
         {exampleForms.map((ex, i) => <li key={i}>
-          <a href="#" onClick={() => this.setState({selectedExample: i })}>{ex.label}</a>
+          <a
+            href="#"
+            style={ { color: i === this.state.selectedExample ? '#000' : '#b4b4b4' } }
+            onClick={() => this.setState({selectedExample: i })} >
+            {ex.label}
+          </a>
         </li> )}
       </ul>
       <hr/>
@@ -23,4 +32,8 @@ export default class App extends Component {
       }))}
     </div>
   }
+}
+
+App.contextTypes = {
+  store: PropTypes.object
 }

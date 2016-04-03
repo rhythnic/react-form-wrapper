@@ -11,6 +11,10 @@ import { isUndefined, isArray, isString, last, assign } from 'lodash'
 
 const PATH_RE = /\[([\d]*)\]/;
 
+export function isArrayField(name) {
+  return isArray(last(getPath.call(this, name)));
+}
+
 export function getPath(name) {
   if (!(name in this._paths)) {
     const delimited = name.split(this._delimiter);
@@ -39,23 +43,38 @@ export function removeItem(path, index) {
   changeHandler.call(this, { op: 'remove', path: [...path, index] });
 }
 
+export function makeField(name, childName) {
+  const path = getPath.call(this, name);
+  const field = {
+    name,
+    onChange: this.changeHandler,
+    at: getFieldAt.bind(this, childName)
+  }
+  if (isArrayField.call(this, name)) {
+    field.push = pushItem.bind(this, path);
+    field.remove = removeItem.bind(this, path);
+  }
+  this._fields[name] = field;
+  return field;
+}
+
 export function getField(childName, props = {}, opts = {}) {
   const name = getName.call(this, childName);
-  const path = getPath.call(this, name);
-  const value = getInValue.call(this, childName, opts);
+  let field = this._fields[name] || makeField.call(this, name, childName);
+  if (props.multiple) {
+    opts = assign({toJS: true}, opts);
+  }
   const base = {
-    name,
-    value,
-    onChange: this.changeHandler
+    value: getInValue.call(this, childName, opts)
   };
-  if (typeof value === 'boolean') {
-    base.checked = value;
+  if (typeof base.value === 'boolean') {
+    base.checked = base.value;
   }
-  if (isArray(last(path))) {
-    base.push = pushItem.bind(this, path);
-    base.remove = removeItem.bind(this, path);
-  }
-  return assign(base, props);
+  return assign(base, field, props);
+}
+
+export function getFieldAt(parentName, childName, ...other) {
+  return getField.call(this, `${parentName}${this._delimiter}${childName}`, ...other);
 }
 
 export function getName(childName) {
@@ -102,20 +121,23 @@ export function resetHandler(evt) {
 
 export function getInValue(name, opts = {}) {
   const ctx = (this.state && this.state.value) || this.props.value;
+  let value;
   if (ctx) {
-    let value = getValueInContext.call(this, ctx, name);
-    if (isUndefined(value) && isArray(last(getPath.call(this, name)))) {
-      value = [];
-    }
-    return List.isList(value) || (opts.toJS && Map.isMap(value))
-      ? value.toJS()
-      : value;
+    value = getValueInContext.call(this, ctx, name);
   }
+  if (isUndefined(value) && isArrayField.call(this, name)) {
+    value = List();
+  }
+  if (opts.toJS && (List.isList(value) || Map.isMap(value))) {
+    value = value.toJS();
+  }
+  return value;
 }
 
 export function getValueInContext(ctx, name) {
   const path = flattenPath( getPath.call(this, name) );
-  return ctx.getIn(path);
+  const result = ctx.getIn(path);
+  return result;
 }
 
 export const methodsForWrappedComponent = {

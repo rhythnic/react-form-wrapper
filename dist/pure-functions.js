@@ -44,6 +44,7 @@ function update(state, _ref) {
   var path = _ref.path;
   var value = _ref.value;
 
+  //console.log(op, path, value, state.toJS());
   state = createPathObjects(state, path);
   path = flattenPath(path);
   if (op !== 'remove' && !(0, _lodash.isNil)(value)) {
