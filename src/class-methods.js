@@ -7,7 +7,7 @@
 
 import Immutable, {List, Map} from 'immutable';
 import { update, buildPatchFromEvent, flattenPath } from './pure-functions';
-import { isUndefined, isArray, isString, last } from 'lodash'
+import { isUndefined, isArray, isString, last, assign } from 'lodash'
 
 const PATH_RE = /\[([\d]*)\]/;
 
@@ -39,7 +39,7 @@ export function removeItem(path, index) {
   changeHandler.call(this, { op: 'remove', path: [...path, index] });
 }
 
-export function getField(childName, opts = {}) {
+export function getField(childName, props = {}, opts = {}) {
   const name = getName.call(this, childName);
   const path = getPath.call(this, name);
   const value = getInValue.call(this, childName, opts);
@@ -55,7 +55,7 @@ export function getField(childName, opts = {}) {
     base.push = pushItem.bind(this, path);
     base.remove = removeItem.bind(this, path);
   }
-  return base;
+  return assign(base, props);
 }
 
 export function getName(childName) {
