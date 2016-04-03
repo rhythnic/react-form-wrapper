@@ -46,7 +46,8 @@ export function getField(childName, props = {}, opts = {}) {
   const base = {
     name,
     value,
-    onChange: this.changeHandler
+    onChange: this.changeHandler,
+    at: getFieldAt.bind(this, childName)
   };
   if (typeof value === 'boolean') {
     base.checked = value;
@@ -56,6 +57,10 @@ export function getField(childName, props = {}, opts = {}) {
     base.remove = removeItem.bind(this, path);
   }
   return assign(base, props);
+}
+
+export function getFieldAt(parentName, childName, ...other) {
+  return getField.call(this, `${parentName}${this._delimiter}${childName}`, ...other);
 }
 
 export function getName(childName) {

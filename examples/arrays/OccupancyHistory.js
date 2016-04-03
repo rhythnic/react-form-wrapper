@@ -1,7 +1,7 @@
 import React from 'react';
 import OccupancyField from './OccupancyField';
 
-export default function OccupancyHistory ({ name, value, onChange, push, remove }) {
+export default function OccupancyHistory ({ name, value, onChange, push, remove, at }) {
   return <div>
     <h3>Occupancy History</h3>
     <button
@@ -12,12 +12,8 @@ export default function OccupancyHistory ({ name, value, onChange, push, remove 
     <ul>
       {value.map((val, i) =>
       <li key={i}>
-        <OccupancyField
-          name={`${name}.${i}`}
-          onChange={onChange}
-          value={val}
-          onRemove={() => remove(i)} />
-      </li>)}
+        <OccupancyField {...at(i)} onRemove={() => remove(i)} />
+       </li>)}
     </ul>
   </div>
 }

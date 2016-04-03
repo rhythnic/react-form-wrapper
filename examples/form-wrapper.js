@@ -1,2 +1,2 @@
-import FormWrapper from '../dist'
+import FormWrapper from '../src'
 export default FormWrapper
