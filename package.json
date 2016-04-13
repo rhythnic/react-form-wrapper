@@ -35,6 +35,7 @@
     "babel-tape-runner": "^2.0.1",
     "expect": "^1.14.0",
     "faucet": "0.0.1",
+    "jsdom": "^8.3.0",
     "lodash": "^4.6.1",
     "react-addons-test-utils": "^0.14.8",
     "react-dom": "^0.14.7",
