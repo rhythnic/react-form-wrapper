@@ -6,10 +6,10 @@
 
 
 import Immutable, {List, Map} from 'immutable';
-import { update, buildPatchFromEvent, flattenPath } from './pure-functions';
-import { isUndefined, isArray, isString, last, assign } from 'lodash'
+import { update, buildPatchFromEvent } from './pure-functions';
+import { isUndefined, isArray, isString, last, assign, flatten } from 'lodash'
 
-const PATH_RE = /\[([\d]*)\]/;
+const PATH_ARRAY_RE = /\[([\d]*)\]/;
 
 export function isArrayField(name) {
   return isArray(last(getPath.call(this, name)));
@@ -20,7 +20,7 @@ export function getPath(name) {
     const delimited = name.split(this._delimiter);
     const path = [];
     for (let i = 0; i < delimited.length; i++) {
-      let match = PATH_RE.exec(delimited[i]);
+      let match = PATH_ARRAY_RE.exec(delimited[i]);
       if (!match) {
         path.push(delimited[i]);
         continue;
@@ -135,7 +135,7 @@ export function getInValue(name, opts = {}) {
 }
 
 export function getValueInContext(ctx, name) {
-  const path = flattenPath( getPath.call(this, name) );
+  const path = flatten( getPath.call(this, name) );
   const result = ctx.getIn(path);
   return result;
 }
