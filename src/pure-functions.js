@@ -1,9 +1,6 @@
 import Immutable, {List, Map} from 'immutable';
-import { map, last, isObject, isArray, isUndefined, isNil } from 'lodash';
+import { map, last, isObject, isArray, isNil, flatten, filter } from 'lodash';
 
-export function flattenPath(path) {
-  return map(path, item => Array.isArray(item) ? item[0] : item);
-}
 
 export function createPathObjects(state, path) {
   let i = 0, key, isArr, value, setPath = [];
@@ -19,9 +16,8 @@ export function createPathObjects(state, path) {
 }
 
 export function update (state, { op, path, value }) {
-  //console.log(op, path, value, state.toJS());
   state = createPathObjects(state, path);
-  path = flattenPath(path);
+  path = flatten(path);
   if (op !== 'remove' && !isNil(value)) {
     if (isArray(value)) {
       value = List(value);
@@ -33,11 +29,11 @@ export function update (state, { op, path, value }) {
     case 'replace':
       return state.updateIn(path, () => value);
     case 'add':
-      return state.updateIn(path, List(), (list) => list.push(value));
+      return state.updateIn(path, List(), list => list.push(value));
     case 'remove':
-      return _.isUndefined(value)
+      return isNil(value)
         ? state.deleteIn(path)
-        : state.updateIn(path, List(), (list) => list.delete(list.indexOf(value)));
+        : state.updateIn(path, List(), list => list.delete(list.indexOf(value)));
     default:
       return state;
   }
@@ -51,7 +47,7 @@ export function buildPatchFromEvent(evt, path) {
         ? { op: checked ? 'add' : 'remove', path, value }
         : { op: 'replace', path, value: checked };
     case 'select-multiple':
-      value = map(evt.target.querySelectorAll('option:checked'), 'value');
+      value = map( filter(evt.target.options, 'selected'), 'value');
       return { op: 'replace', path, value };
     case 'number':
       return { path, op: 'replace', value: parseInt(value, 10) };

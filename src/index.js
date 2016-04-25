@@ -1,6 +1,6 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
-import {assign} from 'lodash';
+import { assign, isObject } from 'lodash';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { methodsForWrappedComponent, isArrayField } from './class-methods';
 import { update as updateForm } from './pure-functions';
@@ -22,7 +22,9 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this._schema = schema;
       this._paths = {};
       this._fields = {};
-      this.state = this.initialState(props);
+      if (!props.onChange) {
+        this.state = this.initialState(props);
+      }
     }
 
     componentDidMount() {
@@ -35,12 +37,16 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
     componentWillReceiveProps(np) {
       if (this._isMounted && !np.onChange && np.value !== this.props.value) {
-        this.setState({value: Immutable.fromJS(np.value)});
+        this.setState(this.initialState(np));
       }
     }
 
-    initialState(props) {
-      return props.onChange ? {} : {value: Immutable.fromJS(props.value)}
+    initialState({ value = {} }) {
+      if (value && isObject(value)) {
+        return { value: Immutable.fromJS(value) };
+      } else {
+        throw new Error("Attempting to set parent form wrapper value to non-object");
+      }
     }
 
     getValue({ toJS = true } = {}) {

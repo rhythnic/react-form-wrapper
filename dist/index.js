@@ -59,7 +59,9 @@ exports.default = function () {
         _this._schema = schema;
         _this._paths = {};
         _this._fields = {};
-        _this.state = _this.initialState(props);
+        if (!props.onChange) {
+          _this.state = _this.initialState(props);
+        }
         return _this;
       }
 
@@ -77,21 +79,28 @@ exports.default = function () {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(np) {
           if (this._isMounted && !np.onChange && np.value !== this.props.value) {
-            this.setState({ value: _immutable2.default.fromJS(np.value) });
+            this.setState(this.initialState(np));
           }
         }
       }, {
         key: 'initialState',
-        value: function initialState(props) {
-          return props.onChange ? {} : { value: _immutable2.default.fromJS(props.value) };
+        value: function initialState(_ref2) {
+          var _ref2$value = _ref2.value;
+          var value = _ref2$value === undefined ? {} : _ref2$value;
+
+          if (value && (0, _lodash.isObject)(value)) {
+            return { value: _immutable2.default.fromJS(value) };
+          } else {
+            throw new Error("Attempting to set parent form wrapper value to non-object");
+          }
         }
       }, {
         key: 'getValue',
         value: function getValue() {
-          var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+          var _ref3 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-          var _ref2$toJS = _ref2.toJS;
-          var toJS = _ref2$toJS === undefined ? true : _ref2$toJS;
+          var _ref3$toJS = _ref3.toJS;
+          var toJS = _ref3$toJS === undefined ? true : _ref3$toJS;
 
           var value = this.state && this.state.value || this.props.value;
           return value && (toJS ? value.toJS() : value);
