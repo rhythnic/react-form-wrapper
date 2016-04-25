@@ -82,15 +82,22 @@ export function getName(childName) {
   return name ? `${name}${this._delimiter}${childName}` : childName;
 }
 
-export function changeHandler(patch) {
+export function normalizePatchOrEvent(patch) {
+  // check if patch is an input event
   if (!patch.op) {
     // normalize event to patch object
     const path = getPath.call(this, patch.target.name);
     patch = buildPatchFromEvent(patch, path);
   }
+  // in case patch was created by user, check if patch is using string for path
   if (isString(patch.path)) {
     patch.path = getPath.call(this, patch.path);
   }
+  return patch;
+}
+
+export function changeHandler(patch) {
+  patch = normalizePatchOrEvent.call(this, patch);
 
   const { onChange } = this.props;
   if (onChange && typeof onChange === 'function') {
