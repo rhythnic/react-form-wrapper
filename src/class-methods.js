@@ -62,6 +62,7 @@ export function getField(childName, props = {}, opts = {}) {
   const name = getName.call(this, childName);
   let field = this._fields[name] || makeField.call(this, name, childName);
   if (props.multiple) {
+    // convert List to Array for select multiple
     opts = assign({toJS: true}, opts);
   }
   const base = {
@@ -143,8 +144,7 @@ export function getInValue(name, opts = {}) {
 
 export function getValueInContext(ctx, name) {
   const path = flatten( getPath.call(this, name) );
-  const result = ctx.getIn(path);
-  return result;
+  return ctx.getIn(path);
 }
 
 export const methodsForWrappedComponent = {
