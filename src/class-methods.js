@@ -113,7 +113,7 @@ export function submitHandler(evt) {
   evt.preventDefault();
   const {onSubmit, onChange} = this.props;
   if (onSubmit && typeof onSubmit === 'function') {
-    onSubmit(onChange ? evt : this.getValue({ toJS: true }));
+    onSubmit(onChange ? evt : this.state.value.toJS());
   }
 }
 
