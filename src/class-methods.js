@@ -6,10 +6,10 @@
 
 
 import Immutable, {List, Map} from 'immutable';
-import { update, buildPatchFromEvent, flattenPath } from './pure-functions';
-import { isUndefined, isArray, isString, last, assign } from 'lodash'
+import { update, buildPatchFromEvent } from './pure-functions';
+import { isUndefined, isArray, isString, last, assign, flatten } from 'lodash'
 
-const PATH_RE = /\[([\d]*)\]/;
+const PATH_ARRAY_RE = /\[([\d]*)\]/;
 
 export function isArrayField(name) {
   return isArray(last(getPath.call(this, name)));
@@ -20,7 +20,7 @@ export function getPath(name) {
     const delimited = name.split(this._delimiter);
     const path = [];
     for (let i = 0; i < delimited.length; i++) {
-      let match = PATH_RE.exec(delimited[i]);
+      let match = PATH_ARRAY_RE.exec(delimited[i]);
       if (!match) {
         path.push(delimited[i]);
         continue;
@@ -62,6 +62,7 @@ export function getField(childName, props = {}, opts = {}) {
   const name = getName.call(this, childName);
   let field = this._fields[name] || makeField.call(this, name, childName);
   if (props.multiple) {
+    // convert List to Array for select multiple
     opts = assign({toJS: true}, opts);
   }
   const base = {
@@ -82,15 +83,22 @@ export function getName(childName) {
   return name ? `${name}${this._delimiter}${childName}` : childName;
 }
 
-export function changeHandler(patch) {
+export function normalizePatchOrEvent(patch) {
+  // check if patch is an input event
   if (!patch.op) {
     // normalize event to patch object
     const path = getPath.call(this, patch.target.name);
     patch = buildPatchFromEvent(patch, path);
   }
+  // in case patch was created by user, check if patch is using string for path
   if (isString(patch.path)) {
     patch.path = getPath.call(this, patch.path);
   }
+  return patch;
+}
+
+export function changeHandler(patch) {
+  patch = normalizePatchOrEvent.call(this, patch);
 
   const { onChange } = this.props;
   if (onChange && typeof onChange === 'function') {
@@ -105,7 +113,7 @@ export function submitHandler(evt) {
   evt.preventDefault();
   const {onSubmit, onChange} = this.props;
   if (onSubmit && typeof onSubmit === 'function') {
-    onSubmit(onChange ? evt : this.getValue({ toJS: true }));
+    onSubmit(onChange ? evt : this.state.value.toJS());
   }
 }
 
@@ -135,9 +143,8 @@ export function getInValue(name, opts = {}) {
 }
 
 export function getValueInContext(ctx, name) {
-  const path = flattenPath( getPath.call(this, name) );
-  const result = ctx.getIn(path);
-  return result;
+  const path = flatten( getPath.call(this, name) );
+  return ctx.getIn(path);
 }
 
 export const methodsForWrappedComponent = {
