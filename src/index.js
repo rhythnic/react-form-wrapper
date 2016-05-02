@@ -9,7 +9,7 @@ export const update = updateForm;
 
 export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
-  class Form extends Component {
+  class FormWrapper extends Component {
     constructor(props) {
       super(props);
 
@@ -71,7 +71,7 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     }
   }
 
-  Form.propTypes = {
+  FormWrapper.propTypes = {
     onSubmit: PropTypes.func,
     onReset: PropTypes.func,
     onChange: PropTypes.func,
@@ -79,9 +79,5 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     name: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
   }
 
-  Form.defaultProps = {
-    name: null
-  }
-
-  return Form;
+  return FormWrapper;
 }
