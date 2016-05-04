@@ -41,7 +41,8 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       }
     }
 
-    initialState({ value = {} }) {
+    initialState({ value }) {
+      value = value || {};
       if (value && isObject(value)) {
         return { value: Immutable.fromJS(value) };
       } else {

@@ -10,8 +10,8 @@
   "scripts": {
     "test": "babel-tape-runner test/**/*.js",
     "compile": "babel -d dist/ src/",
-    "start": "webpack && webpack-dev-server --inline --content-base compiled-examples --history-api-fallback",
-    "build": "webpack"
+    "start": "webpack-dev-server --inline --content-base compiled-examples --history-api-fallback",
+    "build:examples": "webpack"
   },
   "keywords": [
     "React",
