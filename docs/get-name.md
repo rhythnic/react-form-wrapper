@@ -1,7 +1,7 @@
 # getName
 
-* [API for getName]('#API')
-* [Next: getValue]('./get-value')
+* [API for getName](#API)
+* [Next: getValue](./get-value)
 
 
 The input name attribute uses JS property access notation to describe the location of a
@@ -23,7 +23,7 @@ calling getName('name') will result in the string 'profile.name'.
 <input name="profile.name" />
 ```
 
-* [Next: getValue]('./get-value')
+* [Next: getValue](./get-value)
 
 
 ## <a name="API"></a>getName API

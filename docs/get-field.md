@@ -1,8 +1,8 @@
 # getField
 
-* [API for getField]('#API')
-* [getField().at]('#getFieldAt')
-* [Next: getName]('./get-name')
+* [API for getField](#API)
+* [getField().at](#getFieldAt)
+* [Next: getName](./get-name)
 
 
 getField returns a props object to pass to your input.  This props object always
@@ -49,7 +49,7 @@ const myArrayProp = getField('myArrayProp[]');
 ```
 
 
-* [Next: getName]('./get-name')
+* [Next: getName](./get-name)
 
 
 ## <a name="API"></a>getField API

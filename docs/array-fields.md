@@ -1,7 +1,7 @@
 # Array Fields
 
-* [getField().push]('#getFieldPush')
-* [getField().remove]('#getFieldRemove')
+* [getField().push](#getFieldPush)
+* [getField().remove](#getFieldRemove)
 
 
 You can indicate to Form Wrapper that a field is an array by using brackets in the field name.

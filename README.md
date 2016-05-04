@@ -9,7 +9,7 @@ forms into smaller groups of inputs.
 npm install --save react-form-wrapper
 
 
-## [Documentation]('./docs')
+## [Documentation](./docs)
 
 
 ## Examples
