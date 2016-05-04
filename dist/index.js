@@ -3,7 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.update = undefined;
+exports.__RewireAPI__ = exports.__ResetDependency__ = exports.__set__ = exports.__Rewire__ = exports.__GetDependency__ = exports.__get__ = exports.update = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -33,7 +35,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var update = exports.update = _pureFunctions.update;
+var update = exports.update = _get__('updateForm');
 
 exports.default = function () {
   var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -42,19 +44,19 @@ exports.default = function () {
   var _ref$delimiter = _ref.delimiter;
   var delimiter = _ref$delimiter === undefined ? '.' : _ref$delimiter;
   return function (WrappedComponent) {
-    var Form = function (_Component) {
-      _inherits(Form, _Component);
+    var FormWrapper = function (_get__2) {
+      _inherits(FormWrapper, _get__2);
 
-      function Form(props) {
-        _classCallCheck(this, Form);
+      function FormWrapper(props) {
+        _classCallCheck(this, FormWrapper);
 
-        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Form).call(this, props));
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormWrapper).call(this, props));
 
-        for (var method in _classMethods.methodsForWrappedComponent) {
-          _this[method] = _classMethods.methodsForWrappedComponent[method].bind(_this);
+        for (var method in _get__('methodsForWrappedComponent')) {
+          _this[method] = _get__('methodsForWrappedComponent')[method].bind(_this);
         }
 
-        _this.shouldComponentUpdate = _reactAddonsPureRenderMixin2.default.shouldComponentUpdate.bind(_this);
+        _this.shouldComponentUpdate = _get__('PureRenderMixin').shouldComponentUpdate.bind(_this);
         _this._delimiter = delimiter;
         _this._schema = schema;
         _this._paths = {};
@@ -65,7 +67,7 @@ exports.default = function () {
         return _this;
       }
 
-      _createClass(Form, [{
+      _createClass(FormWrapper, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
           this._isMounted = true;
@@ -85,11 +87,11 @@ exports.default = function () {
       }, {
         key: 'initialState',
         value: function initialState(_ref2) {
-          var _ref2$value = _ref2.value;
-          var value = _ref2$value === undefined ? {} : _ref2$value;
+          var value = _ref2.value;
 
-          if (value && (0, _lodash.isObject)(value)) {
-            return { value: _immutable2.default.fromJS(value) };
+          value = value || {};
+          if (value && _get__('isObject')(value)) {
+            return { value: _get__('Immutable').fromJS(value) };
           } else {
             throw new Error("Attempting to set parent form wrapper value to non-object");
           }
@@ -108,7 +110,7 @@ exports.default = function () {
       }, {
         key: 'getProps',
         value: function getProps() {
-          return (0, _lodash.assign)({}, this.props, {
+          return _get__('assign')({}, this.props, {
             onSubmit: this.submitHandler,
             onChange: this.changeHandler,
             onReset: this.resetHandler,
@@ -121,25 +123,166 @@ exports.default = function () {
       }, {
         key: 'render',
         value: function render() {
-          return (0, _react.createElement)(WrappedComponent, this.getProps());
+          return _get__('createElement')(WrappedComponent, this.getProps());
         }
       }]);
 
-      return Form;
-    }(_react.Component);
+      return FormWrapper;
+    }(_get__('Component'));
 
-    Form.propTypes = {
-      onSubmit: _react.PropTypes.func,
-      onReset: _react.PropTypes.func,
-      onChange: _react.PropTypes.func,
-      value: _react.PropTypes.object,
-      name: _react.PropTypes.oneOfType([_react.PropTypes.string, _react.PropTypes.object])
+    FormWrapper.propTypes = {
+      onSubmit: _get__('PropTypes').func,
+      onReset: _get__('PropTypes').func,
+      onChange: _get__('PropTypes').func,
+      value: _get__('PropTypes').object,
+      name: _get__('PropTypes').oneOfType([_get__('PropTypes').string, _get__('PropTypes').object])
     };
 
-    Form.defaultProps = {
-      name: null
-    };
-
-    return Form;
+    return FormWrapper;
   };
 };
+
+var _RewiredData__ = {};
+var _RewireAPI__ = {};
+
+(function () {
+  function addPropertyToAPIObject(name, value) {
+    Object.defineProperty(_RewireAPI__, name, {
+      value: value,
+      enumerable: false,
+      configurable: true
+    });
+  }
+
+  addPropertyToAPIObject('__get__', _get__);
+  addPropertyToAPIObject('__GetDependency__', _get__);
+  addPropertyToAPIObject('__Rewire__', _set__);
+  addPropertyToAPIObject('__set__', _set__);
+  addPropertyToAPIObject('__reset__', _reset__);
+  addPropertyToAPIObject('__ResetDependency__', _reset__);
+  addPropertyToAPIObject('__with__', _with__);
+})();
+
+function _get__(variableName) {
+  return _RewiredData__ === undefined || _RewiredData__[variableName] === undefined ? _get_original__(variableName) : _RewiredData__[variableName];
+}
+
+function _get_original__(variableName) {
+  switch (variableName) {
+    case 'updateForm':
+      return _pureFunctions.update;
+
+    case 'methodsForWrappedComponent':
+      return _classMethods.methodsForWrappedComponent;
+
+    case 'PureRenderMixin':
+      return _reactAddonsPureRenderMixin2.default;
+
+    case 'isObject':
+      return _lodash.isObject;
+
+    case 'Immutable':
+      return _immutable2.default;
+
+    case 'assign':
+      return _lodash.assign;
+
+    case 'createElement':
+      return _react.createElement;
+
+    case 'Component':
+      return _react.Component;
+
+    case 'PropTypes':
+      return _react.PropTypes;
+  }
+
+  return undefined;
+}
+
+function _assign__(variableName, value) {
+  if (_RewiredData__ === undefined || _RewiredData__[variableName] === undefined) {
+    return _set_original__(variableName, value);
+  } else {
+    return _RewiredData__[variableName] = value;
+  }
+}
+
+function _set_original__(variableName, _value) {
+  switch (variableName) {}
+
+  return undefined;
+}
+
+function _update_operation__(operation, variableName, prefix) {
+  var oldValue = _get__(variableName);
+
+  var newValue = operation === '++' ? oldValue + 1 : oldValue - 1;
+
+  _assign__(variableName, newValue);
+
+  return prefix ? newValue : oldValue;
+}
+
+function _set__(variableName, value) {
+  return _RewiredData__[variableName] = value;
+}
+
+function _reset__(variableName) {
+  delete _RewiredData__[variableName];
+}
+
+function _with__(object) {
+  var rewiredVariableNames = Object.keys(object);
+  var previousValues = {};
+
+  function reset() {
+    rewiredVariableNames.forEach(function (variableName) {
+      _RewiredData__[variableName] = previousValues[variableName];
+    });
+  }
+
+  return function (callback) {
+    rewiredVariableNames.forEach(function (variableName) {
+      previousValues[variableName] = _RewiredData__[variableName];
+      _RewiredData__[variableName] = object[variableName];
+    });
+    var result = callback();
+
+    if (!!result && typeof result.then == 'function') {
+      result.then(reset).catch(reset);
+    } else {
+      reset();
+    }
+
+    return result;
+  };
+}
+
+var _typeOfOriginalExport = typeof FormWrapper === 'undefined' ? 'undefined' : _typeof(FormWrapper);
+
+function addNonEnumerableProperty(name, value) {
+  Object.defineProperty(FormWrapper, name, {
+    value: value,
+    enumerable: false,
+    configurable: true
+  });
+}
+
+if ((_typeOfOriginalExport === 'object' || _typeOfOriginalExport === 'function') && Object.isExtensible(FormWrapper)) {
+  addNonEnumerableProperty('__get__', _get__);
+  addNonEnumerableProperty('__GetDependency__', _get__);
+  addNonEnumerableProperty('__Rewire__', _set__);
+  addNonEnumerableProperty('__set__', _set__);
+  addNonEnumerableProperty('__reset__', _reset__);
+  addNonEnumerableProperty('__ResetDependency__', _reset__);
+  addNonEnumerableProperty('__with__', _with__);
+  addNonEnumerableProperty('__RewireAPI__', _RewireAPI__);
+}
+
+exports.__get__ = _get__;
+exports.__GetDependency__ = _get__;
+exports.__Rewire__ = _set__;
+exports.__set__ = _set__;
+exports.__ResetDependency__ = _reset__;
+exports.__RewireAPI__ = _RewireAPI__;

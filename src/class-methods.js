@@ -58,7 +58,9 @@ export function makeField(name, childName) {
   return field;
 }
 
-export function getField(childName, props = {}, opts = {}) {
+export function getField(childName, props, opts) {
+  props = props || {};
+  opts = opts || {};
   const name = getName.call(this, childName);
   let field = this._fields[name] || makeField.call(this, name, childName);
   if (props.multiple) {
