@@ -1,7 +1,7 @@
 # getValue
 
 * [API for getValue](#API)
-* [Next: Array Fields](./array-fields)
+* [Next: Array Fields](./array-fields.md)
 
 
 Form Wrapper uses [Immutable.js](https://facebook.github.io/immutable-js) to maintain the form values.
@@ -31,7 +31,7 @@ to set toJS to true.
 <select { ...getField('prop', { multiple: true }) } >
 ```
 
-* [Next: Array Fields](./array-fields)
+* [Next: Array Fields](./array-fields.md)
 
 
 ## <a name="API"></a>getValue API

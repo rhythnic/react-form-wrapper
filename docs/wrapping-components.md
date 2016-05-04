@@ -1,7 +1,7 @@
 # Wrapping Components
 
 * [API for wrapping components](#API)
-* [Next: getField](./get-field)
+* [Next: getField](./get-field.md)
 
 
 ##### Data structure
@@ -71,7 +71,7 @@ export default class UserEdit extends Component {
 }
 ```
 
-* [Next: getField](./get-field)
+* [Next: getField](./get-field.md)
 
 
 ## <a name="API"></a>Form Wrapper API
@@ -120,6 +120,6 @@ The options object will be used more as Form Wrapper supports validation and mor
     * callbacks to pass to the form element
   * onChange
     * callback to pass to input elements
-  * [getName(name)](./get-name)
-  * [getValue(name)](./get-value)
+  * [getName(name)](./get-name.md)
+  * [getValue(name)](./get-value.md)
   * [getField(name [, props, options ] )]('./get-field')
