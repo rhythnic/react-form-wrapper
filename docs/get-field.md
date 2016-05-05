@@ -45,7 +45,7 @@ Calling getField('prop').at('subprop') is the same as calling getField('prop.sub
 
 ```
 const myArrayProp = getField('myArrayProp[]');
-{ myArrayProp.map(item => <input { ...myArrayProp.at(0) } />) }
+{ myArrayProp.value.map(item => <input { ...myArrayProp.at(0) } />) }
 ```
 
 

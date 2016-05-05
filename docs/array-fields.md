@@ -37,7 +37,7 @@ const default = 0;
 const myArrayField = getField('myArrayField[]');
 const default = 0;
 ...
-{ myArrayField.map((item, i) => (
+{ myArrayField.value.map((item, i) => (
   <div key={i}>
     <button type="button" onClick={() => myArrayField.remove(i) }>Remove item</button>
     ...
