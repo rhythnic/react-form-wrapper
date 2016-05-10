@@ -121,12 +121,13 @@ export function submitHandler(evt) {
 
 export function resetHandler(evt) {
   evt.preventDefault();
-  if (!this._isMounted) { return false; }
   const {onReset} = this.props;
   if (onReset && typeof onReset === 'function') {
-    return onReset(evt);
+    onReset(evt);
   }
-  this.setState({value: Immutable.fromJS(this.props.value)})
+  if (this._isMounted && this.state && this.state.value) {
+    this.setState({value: Immutable.fromJS(this.props.value)})
+  }
 }
 
 export function getInValue(name, opts = {}) {
