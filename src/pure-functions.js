@@ -1,5 +1,6 @@
 import Immutable, {List, Map} from 'immutable';
-import { map, last, isObject, isArray, isNil, flatten, filter } from 'lodash';
+import { map, last, isArray, isNil, flatten, filter } from 'lodash';
+
 
 
 export function createPathObjects(state, path) {
@@ -39,14 +40,16 @@ export function update (state, { op, path, value }) {
   }
 }
 
-export function buildPatchFromEvent(evt, path) {
+export function buildPatchFromEvent(evt, field) {
   let { type, value, checked } = evt.target;
+  const { path } = field;
   switch(type) {
     case 'checkbox':
-      return isArray(last(path))
+      return field.isArray
         ? { op: checked ? 'add' : 'remove', path, value }
         : { op: 'replace', path, value: checked };
     case 'select-multiple':
+      // value = evt.target.options.filter(o => o.selected).map(o => o.value);
       value = map( filter(evt.target.options, 'selected'), 'value');
       return { op: 'replace', path, value };
     case 'number':
@@ -55,6 +58,31 @@ export function buildPatchFromEvent(evt, path) {
       return { path, op: 'replace', value };
   }
 }
+
+export function buildName(parentName, childName, delimiter) {
+  return parentName ? `${parentName}${delimiter}${childName}` : childName;
+}
+
+
+export const PATH_ARRAY_RE = /\[([\d]*)\]/;
+
+export function buildPath(name, delimiter) {
+  const delimited = name.split(delimiter);
+  const path = [];
+  for (let i = 0; i < delimited.length; i++) {
+    let match = PATH_ARRAY_RE.exec(delimited[i]);
+    if (!match) {
+      path.push(delimited[i]);
+      continue;
+    }
+    path.push([ delimited[i].slice(0, match.index) ]);
+    if (match[1]) {
+      path.push(match[1]);
+    }
+  }
+  return path;
+}
+
 
 // JSON PATCH Examples
 // [
