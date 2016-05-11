@@ -61,8 +61,9 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
         onChange: this.changeHandler,
         onReset:  this.resetHandler,
         getName:  this.getName,
-        getField: this.getField,
         getValue: this.getInValue,
+        getField: this.getField,
+        field:    this.getField,
         value:    this.getValue( {toJS: false} )
       });
     }

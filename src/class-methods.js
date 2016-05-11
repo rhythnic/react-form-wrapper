@@ -66,6 +66,21 @@ export function resetHandler(evt) {
   }
 }
 
+
+// *************************************
+//  Deprecated
+// *************************************
+export function getName(name) {
+  return this.getField(name).name;
+}
+
+// *************************************
+//  Deprecated
+// *************************************
+export function getInValue(name) {
+  return this.getField(name).value;
+}
+
 export const methodsForWrappedComponent = {
-  getField, changeHandler, submitHandler, resetHandler
+  getField, changeHandler, submitHandler, resetHandler, getName, getInValue
 }
