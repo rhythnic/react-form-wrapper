@@ -23,6 +23,9 @@ export default class Field {
       isArray: {
         value: Array.isArray( path[ path.length - 1 ] )
       },
+      childName: {
+        value: childName
+      },
       name: {
         value: name,
         enumerable: true
@@ -39,9 +42,8 @@ export default class Field {
       },
       checked: {
         get() {
-          // TODO: this doesn't work for array items
           const val = this.getValue();
-          return typeof val === 'boolean' ? val : undefined;
+          return typeof val === 'boolean' ? val : false;
         },
         enumerable: true
       }
@@ -71,7 +73,7 @@ export default class Field {
   }
 
   at(name, ...other) {
-    return this.parent.getField(`${this.name}${this.parent._delimiter}${name}`, ...other);
+    return this.parent.getField(`${this.childName}${this.parent._delimiter}${name}`, ...other);
   }
 
   push(value) {
@@ -86,16 +88,12 @@ export default class Field {
 
   withProps(props = {}, opts = {}) {
     const toJS = opts.toJS || props.multiple;
-    const value = this.getValue({ toJS });
-    const ownProps = {
-      name: this.name,
-      value,
-      onChange: this.parent.changeHandler
-    };
-    if (typeof value === 'boolean') {
-      ownProps.checked = value;
-    }
-    return assign(ownProps, props);
+    return assign(
+      {},
+      this,
+      toJS ? { value: this.getValue({ toJS }) } : null,
+      props
+    );
   }
 
 }

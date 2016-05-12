@@ -2,8 +2,8 @@ import test from 'tape';
 import sinon from 'sinon';
 import { assign, isFunction, isObject, isArray } from 'lodash';
 import Immutable, { Map, List } from 'immutable';
-import { changeHandler, submitHandler, resetHandler, normalizePatchOrEvent, getField, getName,
-   getInValue } from '../src/class-methods';
+import { changeHandler, submitHandler, resetHandler, normalizePatchOrEvent,
+  getField, getFieldByFullName, getName, getInValue } from '../src/class-methods';
 
 
 function selfFactory() {
@@ -49,15 +49,27 @@ test('changeHandler', function (t) {
 
 test('getField', function (t) {
   const self = selfFactory();
+  self.props.name = 'parent';
   self._fieldsByChildName.one = {};
   let result = getField.call(self, 'one');
   t.equal(result, self._fieldsByChildName.one, "returns field from cache");
   result = getField.call(self, 'two');
-  t.equal(result, self._fieldsByChildName.two, "caches new fields");
+  t.equal(result, self._fieldsByChildName.two, "caches new fields in childNames");
+  t.equal(result, self._fieldsByFullName['parent.two'], "caches new fields in fullNames");
   self._fieldsByChildName.three = { withProps: sinon.spy() };
   let props = { placeholder: 'Three' };
   result = getField.call(self, 'three', props);
   t.ok(self._fieldsByChildName.three.withProps.calledWith(props), 'returns field.withProps if props or opts present');
+  t.end();
+});
+
+
+test('getFieldByFullName', function (t) {
+  const self = selfFactory();
+  self.props.name = 'parent';
+  self._fieldsByChildName.one = {};
+  let result = getFieldByFullName.call(self, 'parent.one');
+  t.equal(result, self._fieldsByChildName.one, "Gets field by full name.")
   t.end();
 });
 
@@ -183,23 +195,5 @@ test('getInValue', function (t) {
 //   t.equal(result.name, 'two', 'The result contains name as property.');
 //   t.ok(isFunction(result.onChange), 'The result contains function "onChange"');
 //   t.ok(isFunction(result.at), 'The result contains function "at".');
-//   t.end();
-// });
-
-// test('getInValue', function (t) {
-//   const self = selfFactory();
-//   self.state.value = self.props.value = undefined;
-//   let result = getInValue.call(self, 'one');
-//   t.notOk(result, 'It returns undefined if no context.');
-//   self.props.value = new Map();
-//   result = getInValue.call(self, 'one');
-//   t.notOk(result, 'It returns undefined if path not in context.');
-//   result = getInValue.call(self, 'one[]');
-//   t.ok(List.isList(result), 'It returns List if value is undefined on array field');
-//   result = getInValue.call(self, 'one[]', { toJS: true });
-//   t.ok(isArray(result), 'It returns JS object if value is List or Map and opts.toJS is true');
-//   self.props.value = new Map({ one: 1 });
-//   result = getInValue.call(self, 'one');
-//   t.equal(result, 1, 'It returns value in context');
 //   t.end();
 // });
