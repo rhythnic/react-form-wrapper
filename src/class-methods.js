@@ -32,7 +32,6 @@ export function normalizePatchOrEvent(patch) {
   // check if patch is an input event
   let field;
   if (typeof patch.preventDefault === 'function') {
-    console.log(patch.constructor, typeof patch);
     // normalize event to patch object
     field = this._fieldsByFullName[patch.target.name] ||
             getFieldByFullName.call(this, patch.target.name);

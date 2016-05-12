@@ -19,7 +19,7 @@ const exampleForms = [
     label: 'Basic',
     component: Basic,
     props: {
-      value: data.basic
+      value: null
     }
   },
   {

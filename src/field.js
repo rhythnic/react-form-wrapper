@@ -54,7 +54,7 @@ export default class Field {
   getValue(opts = {}) {
     const ctx = (this.parent.state && this.parent.state.value) || this.parent.props.value;
     let value;
-    if (ctx) {
+    if (ctx && (Map.isMap(ctx) || List.isList(ctx))) {
       value = ctx.getIn(this.valuePath);
     }
     if (value == null && this.isArray) {

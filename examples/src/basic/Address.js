@@ -1,15 +1,15 @@
 import React from 'react';
 import FormWrapper from '../../form-wrapper';
 
-function Address({ getField }) {
+function Address({ field }) {
   return (
     <div>
       <p>Address</p>
-      <input { ...getField('street') }
+      <input { ...field('street') }
         placeholder="Street" />
-      <input { ...getField('city') }
+      <input { ...field('city') }
         placeholder="City" />
-      <input { ...getField('country') }
+      <input { ...field('country') }
         placeholder="Country" />
     </div>
   );

@@ -1,19 +1,19 @@
 import React from 'react';
 import FormWrapper from '../../form-wrapper';
 
-function Profile({ getField }) {
+function Profile({ field }) {
   return (
     <div>
-      <input { ...getField('name') }
+      <input { ...field('name') }
         placeholder="Name" />
-      <input { ...getField('roomCount') }
+      <input { ...field('roomCount') }
         placeholder="Room Count"
         type="number" />
-      <input { ...getField('roomsAvailable') }
+      <input { ...field('roomsAvailable') }
         placeholder="Rooms Available"
         type="number" />
       <label> Has Cable
-        <input { ...getField('hasCable') }
+        <input { ...field('hasCable') }
           type="checkbox" />
       </label>
     </div>

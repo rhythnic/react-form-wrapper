@@ -78,8 +78,8 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     onSubmit: PropTypes.func,
     onReset: PropTypes.func,
     onChange: PropTypes.func,
-    value: PropTypes.object,
-    name: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    name:  PropTypes.oneOfType([PropTypes.string, PropTypes.object])
   }
 
   FormWrapper.defaultProps = {
