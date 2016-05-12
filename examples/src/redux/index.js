@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import BasicForm from '../basic';
-import { actions } from './redux-parts';
+import * as actions from './actions';
+
+
 
 class ReduxExample extends Component {
   componentWillMount() {

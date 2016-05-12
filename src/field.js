@@ -33,14 +33,13 @@ export default class Field {
       },
       value: {
         get() {
-          const val = this.getValue();
-          // console.log(this.name, val);
-          return val;
+          return this.getValue();
         },
         enumerable: true
       },
       checked: {
         get() {
+          // TODO: this doesn't work for array items
           const val = this.getValue();
           return typeof val === 'boolean' ? val : undefined;
         },

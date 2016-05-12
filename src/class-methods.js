@@ -6,31 +6,41 @@
 
 
 import Immutable from 'immutable';
-import { update, buildPatchFromEvent } from './pure-functions';
+import { update, buildPatchFromEvent, buildName } from './pure-functions';
 import Field from './field';
 
 
 export function getField(name, props, opts) {
-  let field = this._fields[name];
+  let field = this._fieldsByChildName[name];
   if (!field) {
     field = new Field(name, this);
-    this._fields[field.name] = field;
+    this._fieldsByChildName[name] = field;
+    this._fieldsByFullName[field.name] = field;
   }
   return props || opts
     ? field.withProps(props, opts)
     : field;
 }
 
+export function getFieldByFullName(fullName, ...other) {
+  const { name } = this.props;
+  const childName = name ? fullName.slice(name.length + 1) : fullName;
+  return getField.call(this, childName, ...other);
+}
+
 export function normalizePatchOrEvent(patch) {
   // check if patch is an input event
   let field;
-  if (!patch.op) {
+  if (typeof patch.preventDefault === 'function') {
+    console.log(patch.constructor, typeof patch);
     // normalize event to patch object
-    field = this.getField(patch.target.name);
+    field = this._fieldsByFullName[patch.target.name] ||
+            getFieldByFullName.call(this, patch.target.name);
     patch = buildPatchFromEvent(patch, field);
   } else if (typeof patch.path === 'string') {
     // in case patch was created by user, check if patch is using string for path
-    field = this.getField(patch.path);
+    field = this._fieldsByFullName[patch.path] ||
+            getFieldByFullName.call(this, patch.path);
     patch.path = field.path;
   }
   return patch;
@@ -57,28 +67,29 @@ export function submitHandler(evt) {
 
 export function resetHandler(evt) {
   evt.preventDefault();
-  const {onReset} = this.props;
+  const { onReset } = this.props;
   if (onReset && typeof onReset === 'function') {
     onReset(evt);
   }
   if (this._isMounted && this.state && this.state.value) {
-    this.setState({value: Immutable.fromJS(this.props.value)})
+    this.setState({ value: Immutable.fromJS(this.props.value) })
   }
 }
 
 
 // *************************************
-//  Deprecated
+//  Deprecated as Public API
 // *************************************
 export function getName(name) {
-  return this.getField(name).name;
+  return getField.call(this, name).name;
 }
 
 // *************************************
 //  Deprecated
 // *************************************
 export function getInValue(name) {
-  return this.getField(name).value;
+  // name = buildName(this.props.name, name, this._delimiter);
+  return getField.call(this, name).value;
 }
 
 export const methodsForWrappedComponent = {

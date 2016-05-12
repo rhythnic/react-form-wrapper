@@ -1,9 +1,9 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
-import { assign, isObject } from 'lodash';
+import assign from 'lodash/assign';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import { methodsForWrappedComponent, isArrayField } from './class-methods';
-import { update as updateForm } from './pure-functions';
+import { methodsForWrappedComponent } from './class-methods';
+import { update as updateForm, buildPath } from './pure-functions';
 
 export const update = updateForm;
 
@@ -20,8 +20,9 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._schema = schema;
-      this._paths = {};
-      this._fields = {};
+      // this._path = buildPath(this.props.name, delimiter);
+      this._fieldsByChildName = {};
+      this._fieldsByFullName = {};
       if (!props.onChange) {
         this.state = this.initialState(props);
       }
@@ -43,7 +44,7 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
     initialState({ value }) {
       value = value || {};
-      if (value && isObject(value)) {
+      if (value && typeof value === 'object') {
         return { value: Immutable.fromJS(value) };
       } else {
         throw new Error("Attempting to set parent form wrapper value to non-object");
@@ -79,6 +80,14 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     onChange: PropTypes.func,
     value: PropTypes.object,
     name: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+  }
+
+  FormWrapper.defaultProps = {
+    onSubmit: null,
+    onReset: null,
+    onChange: null,
+    value: null,
+    name: ''
   }
 
   return FormWrapper;
