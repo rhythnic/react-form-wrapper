@@ -1,7 +1,7 @@
 # Wrapping Components
 
 * [API for wrapping components](#API)
-* [Next: field](./get-field.md)
+* [Next: field method](./field.md)
 
 
 ##### Data structure
@@ -98,13 +98,13 @@ The options object will be used more as Form Wrapper supports validation and mor
   * in onChange prop not used, value acts as defaultValue; however, if value changes,
     form values will reset to match those values.
 - **name**
-  * for fieldsets, which receive a name and a value, name is the the path to that value
   * JS property access notation
+  * for fieldsets, and fields, name is the path to value within the parent's value
 - **onChange**
   * callback for when a form value has changed
   * callback receives a JSON patch object
   * onChange callback prevents Form Wrapper from saving state internally
-  * used for fieldsets or maintaining form state outside of FormWrapper
+  * used for fieldsets or maintaining form state outside of FormWrapper (e.g. in Redux)
 - **onReset**
   * receives form's reset event
 
@@ -125,5 +125,5 @@ The options object will be used more as Form Wrapper supports validation and mor
   * callback to pass to input elements
 -  [field(name [, props, options ] )]('./field')
 -  [field(name [, props, options ] )]('./get-field') deprecated
--  [getName(name)](./get-name.md) deprecated
--  [getValue(name)](./get-value.md) deprecated
+-  getName(name) (deprecated)
+-  getValue(name) (deprecated)

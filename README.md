@@ -28,7 +28,7 @@ const Profile = FormWrapper()(function Profile({ field }) {
   );
 });
 
-const UserForm = FormWrapper()( function UserForm({ onSubmit, field }) {
+const UserForm = FormWrapper()(function UserForm({ onSubmit, field }) {
   return (
     <form onSubmit={ onSubmit }>
       <Profile { ...field('profile') } />
@@ -52,7 +52,7 @@ class UserEdit extends Component {
 
 ## More Examples
 
-See the [examples folder](./examples/src/basic/index.js)
+See the [examples folder](./examples/src/)
 
 To run the examples
 
@@ -68,7 +68,7 @@ npm run serve:examples
 
 ## Tips
 
-* Organize your forms by nesting wrapped components for greater efficiency
+- Organize your forms by nesting wrapped components for greater efficiency
   * uses pure-render-mixin
 
 
@@ -76,18 +76,18 @@ npm run serve:examples
 
 The aim of this package is to be/have:
 
-*  Easy to use without having to declare a schema
-*  Performant (immutable.js and pure-render-mixin used internally)
-*  Use with or without Redux
-*  Data management only, no custom components
-*  JSON schema support (future)
-*  Forms composed of other forms
-*  Intuitive API, predictable behavior
+-  Easy to use without having to declare a schema
+-  Performant (immutable.js and pure-render-mixin used internally)
+-  Use with or without Redux
+-  Data management only, no custom components
+-  JSON schema support (future)
+-  Forms composed of other forms
+-  Intuitive API, predictable behavior
 
 
 ### TODO
-  * validation
-  * JSON Schema support
+- validation
+- JSON Schema support
 
 
 ## Contributors

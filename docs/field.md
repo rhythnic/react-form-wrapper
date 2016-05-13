@@ -7,8 +7,7 @@
 
 The field method returns an instance of the class Field.  Field's enumerable properties
 are passed as the props object to your input.  This props object always
-contains name, value, and onChange.  onChange is the same for all fields inside
-of a wrapped component.
+contains name, value, and onChange.
 
 **Within a fieldset with the name 'address'**
 ```
@@ -23,7 +22,7 @@ of a wrapped component.
 ```
 
 The name of an input is JS property access notation for that property within the outermost
-data structure ( form values object );
+data structure, the one you get when a form is submitted.
 
 The second argument of field is a props object.  This extends the properties that
 are returned by field.
@@ -38,6 +37,9 @@ You can also put it outside, as usual.
 <input { ...field('street') } placeholder="Street" />
 ```
 
+There are [special cases]('./special-cases') when you should include props in your call to 'field',
+such as when using a file input.
+
 The third argument of field is an options object.  Currently, the only option is 'toJS'.
 FormWrapper uses [Immutable.js](https://facebook.github.io/immutable-js/) to maintain
 form values.  toJS is part of the Immutable.js API. It enables you to receive a JS object when you would otherwise get a Map or a List.
@@ -46,15 +48,23 @@ form values.  toJS is part of the Immutable.js API. It enables you to receive a 
 <input { ...field('myArrayField', null, { toJS: true } )} />
 ```
 
-Immutable Lists support map and forEach, as if they were arrays.  You only really
+Immutable Lists support map and forEach, similar to arrays.  You only really
 need toJS if you're passing the value to a component that expects an array, like
 the "select" component when multiple set to "true".
+
+```
+<select { ...field('myProp', { multiple: true }, { toJS: true }) } />
+```
 
 
 ### <a name="fieldAt"></a>field().at
 
-'at' is a method of Field.  It allows you to easily call field for nested values.
-Calling field('address').at('street') is the same as calling field('address.street');
+'at' is a method of Field.  It allows you to easily call the field method for nested values.
+These two calls have the same result:
+-  field('address').at('street')
+-  field('address.street')
+
+Field.at is useful for arrays.
 
 ```
 const myArrayProp = field('myArrayProp[]');

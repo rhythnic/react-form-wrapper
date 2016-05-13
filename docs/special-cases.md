@@ -1,7 +1,7 @@
 # Special Cases
 
 * [File Inputs](#file-inputs)
-
+* [Next: Custom Inputs](./custom-inputs.md)
 
 ## File Inputs
 
@@ -15,3 +15,5 @@ FormWrapper takes care of this for you, but you have to indicate that the field 
 ```
 <input { ...field('myProp', { type: 'file' }) } />
 ```
+
+* [Next: Custom Inputs](./custom-inputs.md)
