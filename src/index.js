@@ -20,7 +20,6 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._schema = schema;
-      // this._path = buildPath(this.props.name, delimiter);
       this._fieldsByChildName = {};
       this._fieldsByFullName = {};
       if (!props.onChange) {
@@ -44,8 +43,12 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
     initialState({ value }) {
       value = value || {};
+      const { version } = (this.state || {});
       if (value && typeof value === 'object') {
-        return { value: Immutable.fromJS(value) };
+        return {
+          value: Immutable.fromJS(value),
+          version: version == null ? 0 : (version + 1)
+        };
       } else {
         throw new Error("Attempting to set parent form wrapper value to non-object");
       }
@@ -54,6 +57,10 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     getValue({ toJS = true } = {}) {
       const value = (this.state && this.state.value) || this.props.value;
       return value && (toJS ? value.toJS() : value);
+    }
+
+    getNextKey() {
+      return this._nextKey++;
     }
 
     getProps() {

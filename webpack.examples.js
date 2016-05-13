@@ -17,12 +17,8 @@ module.exports = {
     extensions: ['', '.js', '.jsx']
   },
   output: {
-    path: `${__dirname}/examples/.build`,
+    path: `${__dirname}/examples/build`,
     filename: 'bundle.js'
-  },
-  devServer: {
-    contentBase: './examples',
-    hot: true
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()

@@ -8,7 +8,7 @@ import { changeHandler, submitHandler, resetHandler, normalizePatchOrEvent,
 
 function selfFactory() {
   return {
-    state: { value: new Map() },
+    state: { value: new Map(), version: 0 },
     _fieldsByChildName: {},
     _fieldsByFullName: {},
     _delimiter: '.',
@@ -101,7 +101,8 @@ test('resetHandler', function (t) {
   self.props.value = { one: 1 };
   resetHandler.call(self, evt);
   let setStateArg = self.setState.getCall(0).args[0];
-  t.ok(Immutable.is(setStateArg.value, Map(self.props.value)), 'if state.value, sets state.value to props.value');
+  t.ok(Immutable.is(setStateArg.value, Map(self.props.value)), 'if state, sets state.value to props.value');
+  t.equal(setStateArg.version, 1, 'if state, increment state.version');
   self._isMounted = false;
   t.notOk(resetHandler.call(self, evt), 'if not mounted, does not set state');
   t.end();

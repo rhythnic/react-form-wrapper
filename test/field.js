@@ -104,12 +104,14 @@ test('Field withProps', function(t) {
   const parent = formWrapperFactory();
   let f = new Field(childName, parent);
   let result = f.withProps({placeholder: 'Child Name'});
-  const expectedKeys = ['name', 'value', 'onChange', 'multiple', 'checked', 'placeholder'];
-  const diff = difference(Object.keys(result), expectedKeys);
+  let expectedKeys = ['name', 'value', 'onChange', 'checked', 'placeholder', 'version'];
+  let diff = difference(Object.keys(result), expectedKeys);
   t.equal(diff.length, 0, "Returns object with enumerable keys extended by props");
   f.getValue = sinon.spy();
-  result = f.withProps({multiple: true});
+  result = f.withProps(null, {toJS: true});
   let args = f.getValue.getCall(0).args[0];
-  t.deepEqual(args, {toJS: true}, "calls getValue with toJS=true if props.multiple");
+  t.deepEqual(args, {toJS: true}, "calls getValue with toJS=true if toJS is true in opts");
+  result = f.withProps({type: 'file'});
+  t.ok(result.key, "props contains unique key if props.type is file");
   t.end();
 });

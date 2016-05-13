@@ -46,8 +46,19 @@ export default class Field {
           return typeof val === 'boolean' ? val : false;
         },
         enumerable: true
+      },
+      version: {
+        get() {
+          return parent.state ? parent.state.version : parent.props.version;
+        },
+        enumerable: true
+      },
+      key: {
+        get() {
+          return `${this.name}_${this.version}`;
+        }
       }
-    })
+    });
 
   }
 
@@ -86,12 +97,20 @@ export default class Field {
     this.onChange({ op: 'remove', path: [...this.path, index] });
   }
 
-  withProps(props = {}, opts = {}) {
-    const toJS = opts.toJS || props.multiple;
+  withProps(props, opts) {
+    props = props || {};
+    opts = opts || {};
+    const { toJS } = opts;
+    const isFile = props.type === 'file';
     return assign(
       {},
       this,
-      toJS ? { value: this.getValue({ toJS }) } : null,
+      // key needs to stay the same until reset, then change
+      toJS
+        ? { value: this.getValue({ toJS }) }
+        : isFile
+          ? { value: undefined, key: this.key }
+          : null,
       props
     );
   }

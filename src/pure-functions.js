@@ -55,6 +55,8 @@ export function buildPatchFromEvent(evt, { path, isArray }) {
       return { op: 'replace', path, value };
     case 'number':
       return { path, op: 'replace', value: parseInt(value, 10) };
+    case 'file':
+      return { path, op: 'replace', value: evt.target.files };
     default:
       return { path, op: 'replace', value };
   }

@@ -70,8 +70,11 @@ export function resetHandler(evt) {
   if (onReset && typeof onReset === 'function') {
     onReset(evt);
   }
-  if (this._isMounted && this.state && this.state.value) {
-    this.setState({ value: Immutable.fromJS(this.props.value) })
+  if (this._isMounted && this.state) {
+    this.setState({
+      value: Immutable.fromJS(this.props.value),
+      version: this.state.version + 1
+    });
   }
 }
 

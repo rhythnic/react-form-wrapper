@@ -2,7 +2,7 @@
 *.log
 *.idea
 node_modules
-examples/.build
+bundle.js
 dist
 lib
 es

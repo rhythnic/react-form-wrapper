@@ -3,8 +3,7 @@
 ## Documentation
 
 * [Wrapping Components](./wrapping-components.md)
-* [getField](./getField.md)
-* [getName](./getName.md)
-* [getValue](./getValue.md)
-* [getField().at](./getFieldAt.md)
+* [field method](./field.md)
+* [field().at](./fieldAt.md)
 * [Array Fields](./array-fields.md)
+* [Special Cases](./special-cases.md)

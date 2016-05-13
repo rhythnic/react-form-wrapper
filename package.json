@@ -24,7 +24,7 @@
     "build": "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "prepublish": "npm run clean && npm test && npm run build",
     "build:examples": "webpack --config webpack.examples.js",
-    "serve:examples": "webpack-dev-server --config webpack.examples.js --inline --history-api-fallback"
+    "serve:examples": "webpack-dev-server --config webpack.examples.js --content-base examples/build"
   },
   "keywords": [
     "react",
