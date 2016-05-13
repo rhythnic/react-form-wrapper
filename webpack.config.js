@@ -1,31 +1,41 @@
-var webpack = require('webpack');
+'use strict';
 
-module.exports = {
-  entry: [
-    'webpack-dev-server/client?http://localhost:8080',
-    'webpack/hot/only-dev-server',
-    './examples/index.js'
-  ],
+var webpack = require('webpack')
+
+var env = process.env.NODE_ENV
+
+var config = {
   module: {
     loaders: [{
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
-      loader: 'react-hot!babel'
+      test: /\.js$/,
+      loaders: ['babel-loader'],
+      exclude: /node_modules/
     }]
   },
-  resolve: {
-    extensions: ['', '.js', '.jsx']
-  },
   output: {
-    path: __dirname + '/compiled-examples',
-    publicPath: '/',
-    filename: 'bundle.js'
-  },
-  devServer: {
-    contentBase: './dist',
-    hot: true
+    library: 'FormWrapper',
+    libraryTarget: 'umd'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(env)
+    })
   ]
 };
+
+if (env === 'production') {
+  config.plugins.push(
+    new webpack.optimize.UglifyJsPlugin({
+      compressor: {
+        pure_getters: true,
+        unsafe: true,
+        unsafe_comps: true,
+        screw_ie8: true,
+        warnings: false
+      }
+    })
+  )
+}
+
+module.exports = config

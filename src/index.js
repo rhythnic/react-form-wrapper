@@ -1,9 +1,9 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable from 'immutable';
-import { assign, isObject } from 'lodash';
+import assign from 'lodash/assign';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import { methodsForWrappedComponent, isArrayField } from './class-methods';
-import { update as updateForm } from './pure-functions';
+import { methodsForWrappedComponent } from './class-methods';
+import { update as updateForm, buildPath } from './pure-functions';
 
 export const update = updateForm;
 
@@ -20,8 +20,8 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._schema = schema;
-      this._paths = {};
-      this._fields = {};
+      this._fieldsByChildName = {};
+      this._fieldsByFullName = {};
       if (!props.onChange) {
         this.state = this.initialState(props);
       }
@@ -43,8 +43,12 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
     initialState({ value }) {
       value = value || {};
-      if (value && isObject(value)) {
-        return { value: Immutable.fromJS(value) };
+      const { version } = (this.state || {});
+      if (value && typeof value === 'object') {
+        return {
+          value: Immutable.fromJS(value),
+          version: version == null ? 0 : (version + 1)
+        };
       } else {
         throw new Error("Attempting to set parent form wrapper value to non-object");
       }
@@ -55,14 +59,19 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       return value && (toJS ? value.toJS() : value);
     }
 
+    getNextKey() {
+      return this._nextKey++;
+    }
+
     getProps() {
       return assign({}, this.props, {
         onSubmit: this.submitHandler,
         onChange: this.changeHandler,
         onReset:  this.resetHandler,
         getName:  this.getName,
-        getField: this.getField,
         getValue: this.getInValue,
+        getField: this.getField,
+        field:    this.getField,
         value:    this.getValue( {toJS: false} )
       });
     }
@@ -76,8 +85,16 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     onSubmit: PropTypes.func,
     onReset: PropTypes.func,
     onChange: PropTypes.func,
-    value: PropTypes.object,
-    name: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    name:  PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+  }
+
+  FormWrapper.defaultProps = {
+    onSubmit: null,
+    onReset: null,
+    onChange: null,
+    value: null,
+    name: ''
   }
 
   return FormWrapper;

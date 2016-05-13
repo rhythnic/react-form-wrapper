@@ -1,7 +1,7 @@
 # Wrapping Components
 
 * [API for wrapping components](#API)
-* [Next: getField](./get-field.md)
+* [Next: field method](./field.md)
 
 
 ##### Data structure
@@ -22,10 +22,10 @@ Form Wrapper instance.  Fieldset could be any tag (div).
 ```
 import FormWrapper from 'react-form-wrapper';
 
-function Profile({ getField }) {
+function Profile({ field }) {
   return (
     <fieldset>
-      <input { ...getField('name') } />
+      <input { ...field('name') } />
     </fieldset>
   );
 }
@@ -42,10 +42,10 @@ export default FormWrapper(opts)(Profile)
 import FormWrapper from 'react-form-wrapper';
 import Profile from './Profile';
 
-function UserForm({ onSubmit, onReset, getField }) {
+function UserForm({ onSubmit, onReset, field }) {
   return (
     <form onSubmit={ onSubmit }>
-      <Profile { ...getField('profile') } />
+      <Profile { ...field('profile') } />
     </form>
   );
 }
@@ -71,7 +71,7 @@ export default class UserEdit extends Component {
 }
 ```
 
-* [Next: getField](./get-field.md)
+* [Next: field method](./field.md)
 
 
 ## <a name="API"></a>Form Wrapper API
@@ -90,36 +90,40 @@ The options object will be used more as Form Wrapper supports validation and mor
 
 #### Props accepted by Form Wrapper instance
 
-* **onSubmit**
+- **onSubmit**
   * callback for when form is submitted
-* **value**
-  * form/fieldset value
-* **name**
-  * JS property access notation to value
-  * name only needed on fieldsets
-* **onChange**
+- **value**
+  * JS object
+  * if onChange prop used, form acts as a controlled input (won't keep state)
+  * in onChange prop not used, value acts as defaultValue; however, if value changes,
+    form values will reset to match those values.
+- **name**
+  * JS property access notation
+  * for fieldsets, and fields, name is the path to value within the parent's value
+- **onChange**
   * callback for when a form value has changed
   * callback receives a JSON patch object
   * onChange callback prevents Form Wrapper from saving state internally
-  * used mostly for fieldsets
-* **onReset**
+  * used for fieldsets or maintaining form state outside of FormWrapper (e.g. in Redux)
+- **onReset**
   * receives form's reset event
 
 
 #### Methods available on a Form Wrapper instance
 
-  * **getValue( [ options ] )**
-    * get form data, as a JS object
-    * pass { toJS: false } in options to receive the Immutable.js Map
+- **getValue( [ options ] )**
+  * get form data, as a JS object
+  * pass { toJS: false } in options to receive the Immutable.js Map
 
 
 #### Props available inside a wrapped component
 
-  * value - value of FormWrapper's state or props
-  * onSubmit & onReset
-    * callbacks to pass to the form element
-  * onChange
-    * callback to pass to input elements
-  * [getName(name)](./get-name.md)
-  * [getValue(name)](./get-value.md)
-  * [getField(name [, props, options ] )]('./get-field')
+-  value - value of FormWrapper's state or props
+-  onSubmit & onReset
+  * callbacks to pass to the form element
+-  onChange
+  * callback to pass to input elements
+-  [field(name [, props, options ] )]('./field')
+-  [field(name [, props, options ] )]('./get-field') deprecated
+-  getName(name) (deprecated)
+-  getValue(name) (deprecated)

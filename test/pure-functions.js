@@ -1,6 +1,11 @@
 import test from 'tape';
 import Immutable, { List, Map } from 'immutable';
-import { createPathObjects, buildPatchFromEvent, update } from '../src/pure-functions';
+import {
+  createPathObjects,
+  buildPatchFromEvent,
+  update,
+  buildName,
+  buildPath } from '../src/pure-functions';
 
 
 test('createPathObjects', function (t) {
@@ -15,25 +20,25 @@ test('createPathObjects', function (t) {
 
 test('buildPatchFromEvent', function (t) {
   let evt = { target: { type: 'text', value: '1' } };
-  let path = ['one', 'two' ];
-  let patch = { path, op: 'replace', value: '1' };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "creates replace patch by default");
+  let field = { path: ['one', 'two' ], isArray: false };
+  let patch = { path: field.path, op: 'replace', value: '1' };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "creates replace patch by default");
   evt = { target: { type: 'number', value: '1' } };
-  patch = { path, op: 'replace', value: 1 };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "converts string values to numbers for type number");
+  patch = { path: field.path, op: 'replace', value: 1 };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "converts string values to numbers for type number");
   evt = { target: { type: 'checkbox', checked: true } };
-  patch = { path, op: 'replace', value: true };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "sets non-array field to true for checked checkbox");
+  patch = { path: field.path, op: 'replace', value: true };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "sets non-array field to true for checked checkbox");
   evt = { target: { type: 'checkbox', checked: false } };
-  patch = { path, op: 'replace', value: false };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "sets non-array field to false for unchecked checkbox");
-  path = ['one', ['two']];
+  patch = { path: field.path, op: 'replace', value: false };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "sets non-array field to false for unchecked checkbox");
+  field = { path: ['one', ['two']], isArray: true };
   evt = { target: { type: 'checkbox', value: 'a', checked: true } };
-  patch = { path, op: 'add', value: 'a' };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "adds checked checkbox value to array field");
+  patch = { path: field.path, op: 'add', value: 'a' };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "adds checked checkbox value to array field");
   evt = { target: { type: 'checkbox', value: 'a', checked: false } };
-  patch = { path, op: 'remove', value: 'a' };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "removes unchecked checkbox value to array field");
+  patch = { path: field.path, op: 'remove', value: 'a' };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "removes unchecked checkbox value to array field");
   evt = { target: {
     type: 'select-multiple',
     options: [
@@ -42,8 +47,8 @@ test('buildPatchFromEvent', function (t) {
       { value: 'c', selected: true }
     ]
   }};
-  patch = { path, op: 'replace', value: ['a', 'c'] };
-  t.deepEqual(buildPatchFromEvent(evt, path), patch, "sets value to array of selected options for select-multiple");
+  patch = { path: field.path, op: 'replace', value: ['a', 'c'] };
+  t.deepEqual(buildPatchFromEvent(evt, field), patch, "sets value to array of selected options for select-multiple");
   t.end();
 });
 
@@ -77,5 +82,33 @@ test('update', function (t) {
   newState = oldState.set('one', List());
   result = update(oldState, patch);
   t.ok(Immutable.is(result, newState), "converts array values to Lists");
+  t.end();
+});
+
+
+test('buildName', function (t) {
+  let expected = 'one.two';
+  let result = buildName('one', 'two', '.')
+  t.equal(result, expected, 'Appends childName to parentName, separated by delimiter');
+  expected = 'two';
+  result = buildName('', 'two', '.')
+  t.equal(result, expected, 'Returns childName when no parentName');
+  t.end();
+});
+
+test('buildPath', function (t) {
+  const delimiter = '.';
+  let name = 'one.two';
+  let path = ['one', 'two'];
+  let result = buildPath(name, delimiter);
+  t.deepEqual(result, path, 'returns name split by delimiter');
+  name = 'one.two[]';
+  path = [ 'one', ['two'] ];
+  result = buildPath(name, delimiter);
+  t.deepEqual(result, path, 'converts JS object property notation to nested arrays');
+  path = ['one', ['two'], '0']
+  let names = [ 'one.two[0]', 'one.two[].0' ];
+  let results = [ buildPath(names[0], delimiter), buildPath(names[1], delimiter) ];
+  t.deepEqual(results[0], results[1], 'It treats [0] and [].0 equally');
   t.end();
 });

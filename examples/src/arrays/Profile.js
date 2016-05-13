@@ -1,11 +1,11 @@
 import React from 'react';
-import FormWrapper from '../form-wrapper';
+import FormWrapper from '../../form-wrapper';
 
-function Profile({ getField }) {
-  const features = getField('features[]');
+function Profile({ field }) {
+  const features = field('features[]');
   return (
     <div>
-      <input {...getField('name')} placeholder="Name" />
+      <input {...field('name')} placeholder="Name" />
       <p>Hotel Features</p>
       <ul>
         {['cable', 'hot water', 'sun chairs'].map((item, i) => <li key={i}>

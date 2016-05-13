@@ -1,13 +1,17 @@
 import React, { Component, createElement } from 'react';
-import {render} from 'react-dom';
-import {Provider} from 'react-redux';
+import { render } from 'react-dom';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 
 import * as data from './data';
 import App from './App';
 import Basic from './basic';
 import Arrays from './arrays';
 import ReduxExample from './redux';
-import {store} from './redux/redux-parts';
+import reducer from './redux/reducer';
+
+
+const store = createStore(reducer);
 
 
 const exampleForms = [

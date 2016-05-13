@@ -1,4 +1,11 @@
 {
   "presets": ["es2015", "react"],
-  "plugins": ["rewire"]
+  "env": {
+    "production": {
+      "plugins": []
+    },
+    "development": {
+      "plugins": ["rewire"]
+    }
+  }
 }
