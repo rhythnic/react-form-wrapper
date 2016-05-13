@@ -1,7 +1,7 @@
 # field
 
 * [API for field](#API)
-* [field().at](#fieldAt)
+* [Field.at](#fieldAt)
 * [Next: Array Fields](./array-fields.md)
 
 
@@ -57,7 +57,7 @@ the "select" component when multiple set to "true".
 ```
 
 
-### <a name="fieldAt"></a>field().at
+### <a name="fieldAt"></a>Field.at
 
 'at' is a method of Field.  It allows you to easily call the field method for nested values.
 These two calls have the same result:
