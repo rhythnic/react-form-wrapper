@@ -3,7 +3,6 @@ import FormWrapper from '../../form-wrapper';
 
 function Profile({ field }) {
   const fileField = field('file', { type: 'file' });
-  console.log(fileField);
   return (
     <div>
       <div>

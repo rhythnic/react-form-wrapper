@@ -13,7 +13,7 @@ function MyForm ({ onSubmit, onReset, field, getName, tourOptions }) {
       {/* The value of a select field with multiple = true has to be an array.
       Form Wrapper is using the multiple prop passed in to set toJS to true in options.
       Alternative: <select field('tours[]', {}, { toJS: true }) multiple= true /> */}
-      <select { ...field('tours[]', { multiple: true }) } >
+      <select { ...field('tours[]', { multiple: true }, { toJS: true }) } >
         {tourOptions.map((item, i) =>
         <option key={i} value={item}>{item}</option>)}
       </select>

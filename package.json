@@ -15,7 +15,7 @@
     "url": "git://github.com/rhythnic/react-form-wrapper.git"
   },
   "scripts": {
-    "clean": "rimraf lib dist es examples/.build",
+    "clean": "rimraf lib dist es examples/build/bundle.js",
     "test": "babel-tape-runner test/**/*.js",
     "build:commonjs": "cross-env NODE_ENV=production babel src --out-dir lib",
     "build:es": "cross-env NODE_ENV=production babel src --out-dir es",
@@ -23,8 +23,7 @@
     "build:umd:min": "cross-env NODE_ENV=production webpack src/index.js dist/react-form-wrapper.min.js",
     "build": "npm run build:commonjs && npm run build:es && npm run build:umd && npm run build:umd:min",
     "prepublish": "npm run clean && npm test && npm run build",
-    "build:examples": "webpack --config webpack.examples.js",
-    "serve:examples": "webpack-dev-server --config webpack.examples.js --content-base examples/build"
+    "examples": "webpack-dev-server --config webpack.examples.js --content-base examples/build"
   },
   "keywords": [
     "react",
