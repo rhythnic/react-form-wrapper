@@ -20,8 +20,7 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._schema = schema;
-      this._fieldsByChildName = {};
-      this._fieldsByFullName = {};
+      this._fields = {};
       if (!props.onChange) {
         this.state = this.initialState(props);
       }

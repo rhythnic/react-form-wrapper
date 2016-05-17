@@ -3,14 +3,13 @@ import sinon from 'sinon';
 import { assign, isFunction, isObject, isArray } from 'lodash';
 import Immutable, { Map, List } from 'immutable';
 import { changeHandler, submitHandler, resetHandler, normalizePatchOrEvent,
-  getField, getFieldByFullName, getName, getInValue } from '../src/class-methods';
+  getField, getName, getInValue } from '../src/class-methods';
 
 
 function selfFactory() {
   return {
     state: { value: new Map(), version: 0 },
-    _fieldsByChildName: {},
-    _fieldsByFullName: {},
+    _fields: {},
     _delimiter: '.',
     _isMounted: true,
     props: {},
@@ -50,26 +49,15 @@ test('changeHandler', function (t) {
 test('getField', function (t) {
   const self = selfFactory();
   self.props.name = 'parent';
-  self._fieldsByChildName.one = {};
+  self._fields['parent.one'] = {};
   let result = getField.call(self, 'one');
-  t.equal(result, self._fieldsByChildName.one, "returns field from cache");
+  t.equal(result, self._fields['parent.one'], "returns field from cache");
   result = getField.call(self, 'two');
-  t.equal(result, self._fieldsByChildName.two, "caches new fields in childNames");
-  t.equal(result, self._fieldsByFullName['parent.two'], "caches new fields in fullNames");
-  self._fieldsByChildName.three = { withProps: sinon.spy() };
+  t.equal(result, self._fields['parent.two'], "caches new fields");
+  self._fields['parent.three'] = { withProps: sinon.spy() };
   let props = { placeholder: 'Three' };
   result = getField.call(self, 'three', props);
-  t.ok(self._fieldsByChildName.three.withProps.calledWith(props), 'returns field.withProps if props or opts present');
-  t.end();
-});
-
-
-test('getFieldByFullName', function (t) {
-  const self = selfFactory();
-  self.props.name = 'parent';
-  self._fieldsByChildName.one = {};
-  let result = getFieldByFullName.call(self, 'parent.one');
-  t.equal(result, self._fieldsByChildName.one, "Gets field by full name.")
+  t.ok(self._fields['parent.three'].withProps.calledWith(props), 'returns field.withProps if props or opts present');
   t.end();
 });
 
@@ -122,79 +110,8 @@ test('getName', function (t) {
 test('getInValue', function (t) {
   const self = selfFactory();
   self.props.name = 'one';
-  self._fieldsByChildName['two'] = { value: 1 };
+  self._fields['one.two'] = { value: 1 };
   let result = getInValue.call(self, 'two');
   t.equal(result, 1, 'returns value of field');
   t.end();
 });
-
-
-// test('isArrayField', function (t) {
-//   const self = selfFactory();
-//   t.ok(isArrayField.call(self, 'one.two[]'),     'It returns true if the last node in the path is an array.');
-//   t.notOk(isArrayField.call(self, 'one.three'),  'It returns false if the last node in the path is not an array');
-//   t.notOk(isArrayField.call(self, 'one.two[0]'), 'It returns false if the last node is an index in an array');
-//   t.end();
-// });
-
-// test('pushItem', function (t) {
-//   const self = selfFactory();
-//   self.props.onChange = sinon.spy();
-//   pushItem.call(self, 'one', 'a');
-//   const expected = { op: 'add', path: ['one'], value: 'a' };
-//   const result = self.props.onChange.getCall(0).args[0]
-//   t.deepEqual(result, expected, 'It calls changeHandler with patch object.');
-//   t.end();
-// });
-//
-//
-// test('removeItem', function (t) {
-//   const self = selfFactory();
-//   self.props.onChange = sinon.spy();
-//   removeItem.call(self, [['one']], 0);
-//   const expected = { op: 'remove', path: [['one'], 0] };
-//   const result = self.props.onChange.getCall(0).args[0]
-//   t.deepEqual(result, expected, 'It calls changeHandler with patch object.');
-//   t.end();
-// });
-
-// test('makeField', function (t) {
-//   const self = selfFactory();
-//   let name = 'one.two';
-//   let childName = 'two';
-//   let result = makeField.call(self, name, childName);
-//   t.equal(result.name, name, 'The result contains name as property.');
-//   t.ok(isFunction(result.onChange), 'The result contains function "onChange"');
-//   t.ok(isFunction(result.at), 'The result contains function "at".');
-//   t.ok(isObject(self._fields['one.two']), 'It caches the result');
-//   name = 'one.three[]';
-//   childName = 'three[]';
-//   result = makeField.call(self, name, childName);
-//   t.ok(isFunction(result.push), 'The result contains "push" function for array fields');
-//   t.ok(isFunction(result.push), 'The result contains "remove" function for array fields');
-//   t.end();
-// });
-
-// test('getFieldAt', function (t) {
-//   const self = selfFactory();
-//   const field = getField.call(self, 'one');
-//   const atField = field.at('two');
-//   const expected = getFieldAt.call(self, 'one', 'two');
-//   t.deepEqual(atField, expected, 'calls getField with with path of childName');
-//   t.end();
-// });
-
-// test('getField', function (t) {
-//   const self = selfFactory();
-//   self.state.value = new Map({one: 1, two: List()});
-//   let props = { multiple: true };
-//   let result = getField.call(self, 'one', props, {});
-//   t.ok(result.multiple, 'It assigns props argument into result object');
-//   t.equal(result.value, 1, 'Result contains value at childName');
-//   result = getField.call(self, 'two', props, {});
-//   t.ok(isArray(result.value), 'Value is an array if props.multiple.');
-//   t.equal(result.name, 'two', 'The result contains name as property.');
-//   t.ok(isFunction(result.onChange), 'The result contains function "onChange"');
-//   t.ok(isFunction(result.at), 'The result contains function "at".');
-//   t.end();
-// });
