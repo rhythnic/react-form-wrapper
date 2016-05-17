@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Hotel Schema",
+  "type": "object",
+  "required": [ "address", "profile" ],
+  "properties": {
+    "address": {
+      "$ref": "#/definitions/Address"
+    },
+    "profile": {
+      "$ref": "#/definitions/Profile"
+    }
+  },
+  "definitions": {
+    "Address": {
+      "type": "object",
+      "required": [ "street", "city", "country" ],
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        }
+      }
+    },
+    "Profile": {
+      "type": "object",
+      "required": [ "name", "roomCount" ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "roomCount": {
+          "type": "integer"
+        },
+        "roomsAvailable": {
+          "type": "integer"
+        },
+        "hasCable": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

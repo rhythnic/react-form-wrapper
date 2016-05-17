@@ -7,7 +7,7 @@ import { update as updateForm, buildPath } from './pure-functions';
 
 export const update = updateForm;
 
-export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
+export default ({ validation, delimiter = '.' } = {}) => WrappedComponent => {
 
   class FormWrapper extends Component {
     constructor(props) {
@@ -17,13 +17,27 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
         this[method] = methodsForWrappedComponent[method].bind(this);
       }
 
+      let errorState, valueState;
+
+      if (validation) {
+        if (!Array.isArray(validation) || !validation.every(item => typeof item === 'object')) {
+          throw new Error("Validation must be an array of objects");
+        }
+        this._validation = validation;
+        errorState = { error: new Map() };
+      }
+
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
-      this._schema = schema;
       this._fieldsByChildName = {};
       this._fieldsByFullName = {};
+
       if (!props.onChange) {
-        this.state = this.initialState(props);
+        valueState = this.valueState(props);
+      }
+
+      if (errorState || valueState) {
+        this.state = assign(errorState || {}, valueState);
       }
     }
 
@@ -37,11 +51,11 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
     componentWillReceiveProps(np) {
       if (this._isMounted && !np.onChange && np.value !== this.props.value) {
-        this.setState(this.initialState(np));
+        return this.setState(this.valueState(np));
       }
     }
 
-    initialState({ value }) {
+    valueState({ value }) {
       value = value || {};
       const { version } = (this.state || {});
       if (value && typeof value === 'object') {
@@ -57,10 +71,6 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     getValue({ toJS = true } = {}) {
       const value = (this.state && this.state.value) || this.props.value;
       return value && (toJS ? value.toJS() : value);
-    }
-
-    getNextKey() {
-      return this._nextKey++;
     }
 
     getProps() {

@@ -8,6 +8,7 @@ import App from './App';
 import Basic from './basic';
 import Arrays from './arrays';
 import ReduxExample from './redux';
+import Validation from './validation';
 import reducer from './redux/reducer';
 
 
@@ -35,6 +36,13 @@ const exampleForms = [
     component: ReduxExample,
     props: {
       value: data.basic
+    }
+  },
+  {
+    label: 'Validation',
+    component: Validation,
+    props: {
+      value: null
     }
   }
 ]

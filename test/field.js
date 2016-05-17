@@ -34,15 +34,15 @@ test('Field constructor', function(t) {
   t.ok(f.checked, "checked is true if value is true boolean.");
   f.getValue = sinon.spy();
   let value = f.value;
-  t.ok(f.getValue.called, "value getter calls this.getValue");
+  t.ok(f.getValue.called, "value getter calls this.getStateFromParent");
   t.end();
 });
 
-test('Field getValue', function(t) {
+test('Field getStateFromParent', function(t) {
   const parent = formWrapperFactory();
   let f = new Field(childName, parent);
   let result = f.getValue();
-  t.equal(result, true, 'It returns value in context');
+  t.equal(result, true, 'It returns state from parent context');
   parent.state.value = undefined;
   result = f.getValue();
   t.equal(result, '', 'It returns empty string if no context.');
@@ -104,7 +104,7 @@ test('Field withProps', function(t) {
   const parent = formWrapperFactory();
   let f = new Field(childName, parent);
   let result = f.withProps({placeholder: 'Child Name'});
-  let expectedKeys = ['name', 'value', 'onChange', 'checked', 'placeholder', 'version'];
+  let expectedKeys = ['name', 'value', 'onChange', 'checked', 'placeholder', 'version', 'error'];
   let diff = difference(Object.keys(result), expectedKeys);
   t.equal(diff.length, 0, "Returns object with enumerable keys extended by props");
   f.getValue = sinon.spy();

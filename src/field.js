@@ -17,7 +17,7 @@ export default class Field {
       path: {
         value: path
       },
-      valuePath: {
+      pathToStateInParent: {
         value: flatten( buildPath(childName, parent._delimiter) )
       },
       isArray: {
@@ -57,6 +57,12 @@ export default class Field {
         get() {
           return `${this.name}_${this.version}`;
         }
+      },
+      error: {
+        get() {
+          return this.getError();
+        },
+        enumerable: true
       }
     });
 
@@ -66,7 +72,7 @@ export default class Field {
     const ctx = (this.parent.state && this.parent.state.value) || this.parent.props.value;
     let value;
     if (ctx && (Map.isMap(ctx) || List.isList(ctx))) {
-      value = ctx.getIn(this.valuePath);
+      value = ctx.getIn(this.pathToStateInParent);
     }
     if (value == null && this.isArray) {
       value = List();
@@ -75,6 +81,19 @@ export default class Field {
       return value.toJS();
     }
     return value == null ? '' : value;
+  }
+
+  getError() {
+    const stateCtx = this.parent.state && this.parent.state.error;
+    const propsCtx = this.parent.props.error;
+    let stateError, propsError;
+    if (stateCtx && (Map.isMap(stateCtx) || List.isList(stateCtx))) {
+      stateError = stateCtx.getIn(this.pathToStateInParent);
+    }
+    if (propsCtx && (Map.isMap(propsCtx) || List.isList(propsCtx))) {
+      propsError = propsCtx.getIn(this.pathToStateInParent);
+    }
+    return stateError && propsError ? [ stateError, propsError ] : (stateError || propsError );
   }
 
   checkIsArray() {
