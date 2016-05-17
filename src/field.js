@@ -6,8 +6,8 @@ import { buildName, buildPath } from './pure-functions';
 
 export default class Field {
 
-  constructor(childName, parent) {
-    const name = buildName(parent.props.name, childName, parent._delimiter)
+  constructor(name, childName, parent) {
+    
     const path = buildPath(name, parent._delimiter);
 
     Object.defineProperties(this, {

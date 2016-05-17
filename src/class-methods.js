@@ -6,26 +6,22 @@
 
 
 import Immutable from 'immutable';
-import { update, buildPatchFromEvent, buildName } from './pure-functions';
+import { update, buildPatchFromEvent } from './pure-functions';
 import Field from './field';
 
 
-export function getField(name, props, opts) {
-  let field = this._fieldsByChildName[name];
+export function getField(childName, props, opts) {
+  const name = !this.props.name || (opts && opts.isFullName)
+    ? childName
+    : `${this.props.name}${this._delimiter}${childName}`;
+  let field = this._fields[name];
   if (!field) {
-    field = new Field(name, this);
-    this._fieldsByChildName[name] = field;
-    this._fieldsByFullName[field.name] = field;
+    field = new Field(name, childName, this);
+    this._fields[name] = field;
   }
-  return props || opts
+  return props || (opts && opts.toJS)
     ? field.withProps(props, opts)
     : field;
-}
-
-export function getFieldByFullName(fullName, ...other) {
-  const { name } = this.props;
-  const childName = name ? fullName.slice(name.length + 1) : fullName;
-  return getField.call(this, childName, ...other);
 }
 
 export function normalizePatchOrEvent(patch) {
@@ -33,13 +29,13 @@ export function normalizePatchOrEvent(patch) {
   let field;
   if (typeof patch.preventDefault === 'function') {
     // normalize event to patch object
-    field = this._fieldsByFullName[patch.target.name] ||
-            getFieldByFullName.call(this, patch.target.name);
+    field = this._fields[patch.target.name] ||
+            getField.call(this, patch.target.name, null, { isFullName: true });
     patch = buildPatchFromEvent(patch, field);
   } else if (typeof patch.path === 'string') {
     // in case patch was created by user, check if patch is using string for path
-    field = this._fieldsByFullName[patch.path] ||
-            getFieldByFullName.call(this, patch.path);
+    field = this._fields[patch.path] ||
+            getField.call(this, patch.path, null, { isFullName: true });
     patch.path = field.path;
   }
   return patch;
