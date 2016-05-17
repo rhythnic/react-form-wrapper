@@ -29,9 +29,7 @@ export default ({ validation, delimiter = '.' } = {}) => WrappedComponent => {
 
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
-      this._fieldsByChildName = {};
-      this._fieldsByFullName = {};
-
+      this._fields = {};
       if (!props.onChange) {
         valueState = this.valueState(props);
       }

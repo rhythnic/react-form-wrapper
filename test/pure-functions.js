@@ -4,7 +4,6 @@ import {
   createPathObjects,
   buildPatchFromEvent,
   update,
-  buildName,
   buildPath } from '../src/pure-functions';
 
 
@@ -82,17 +81,6 @@ test('update', function (t) {
   newState = oldState.set('one', List());
   result = update(oldState, patch);
   t.ok(Immutable.is(result, newState), "converts array values to Lists");
-  t.end();
-});
-
-
-test('buildName', function (t) {
-  let expected = 'one.two';
-  let result = buildName('one', 'two', '.')
-  t.equal(result, expected, 'Appends childName to parentName, separated by delimiter');
-  expected = 'two';
-  result = buildName('', 'two', '.')
-  t.equal(result, expected, 'Returns childName when no parentName');
   t.end();
 });
 

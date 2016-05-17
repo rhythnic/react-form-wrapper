@@ -22,8 +22,7 @@ test('FormWrapper Parent', function (t) {
   const wrapper = mount(<FormWrapperInstance passed={true} onSubmit={onSubmit} value={{ one: 1 }}/>);
 
   const instance = wrapper.instance();
-  t.ok( isObject(instance._fieldsByChildName), 'Sets fieldsByChildName cache object on instance.');
-  t.ok( isObject(instance._fieldsByFullName), 'Sets fieldsByFullName cache object on instance.');
+  t.ok( isObject(instance._fields), 'Sets fields cache object on instance.');
   t.equal( instance._delimiter, '.', 'Uses period character as default delimiter.');
   t.ok( instance._isMounted, 'Sets _isMounted boolean to true on mount.');
 
