@@ -37,7 +37,7 @@ You can also put it outside, as usual.
 <input { ...field('street') } placeholder="Street" />
 ```
 
-There are [special cases]('./special-cases.md') when you should include props in your call to 'field',
+There are [special cases](./special-cases.md) when you should include props in your call to 'field',
 such as when using a file input.
 
 The third argument of field is an options object.  Currently, the only option is 'toJS'.
