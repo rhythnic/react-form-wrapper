@@ -6,7 +6,7 @@ export default function OccupancyHistory ({ history }) {
     <h3>Occupancy History</h3>
     <button
       type="button"
-      onClick={() => history.push(0)} >
+      onClick={() => history.push({ a: [ {} ] })} >
       Add
     </button>
     <ul>

@@ -20,12 +20,8 @@ export function createPathObjects(state, path) {
 export function update (state, { op, path, value }) {
   state = createPathObjects(state, path);
   path = flatten(path);
-  if (op !== 'remove' && value != null) {
-    if (Array.isArray(value)) {
-      value = List(value);
-    } else if (value.constructor === Object) {
-      value = Map(value);
-    }
+  if (op !== 'remove' && value != null && typeof value === 'object') {
+    value = Immutable.fromJS(value);
   }
   switch(op) {
     case 'replace':
