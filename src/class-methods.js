@@ -49,7 +49,11 @@ export function changeHandler(patch) {
     return onChange(patch);
   }
   if (!this._isMounted) { return false; }
-  this.setState({value: update(this.state.value, patch)});
+  const value = update(this.state.value, patch);
+  this.setState({
+    value,
+    submitIsDisabled: !!this._disableSubmit && this._disableSubmit(value)
+  });
 }
 
 export function submitHandler(evt) {

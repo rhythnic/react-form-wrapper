@@ -67,7 +67,7 @@ test('FormWrapper Nested', function (t) {
   const wrapper = mount(<FormWrapperInstance onChange={onChange} />);
 
   const state = wrapper.state();
-  t.notOk( state, "Does not set state.");
+  t.deepEqual( state, { submitIsDisabled: false }, "Nested state contains only submitIsDisabled");
 
   t.end();
 
