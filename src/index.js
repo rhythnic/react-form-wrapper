@@ -1,5 +1,5 @@
 import React, {Component, PropTypes, createElement} from 'react';
-import Immutable from 'immutable';
+import Immutable, { Map, List } from 'immutable';
 import assign from 'lodash/assign';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { methodsForWrappedComponent } from './class-methods';
@@ -7,7 +7,7 @@ import { update as updateForm, buildPath } from './pure-functions';
 
 export const update = updateForm;
 
-export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
+export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedComponent => {
 
   class FormWrapper extends Component {
     constructor(props) {
@@ -19,11 +19,10 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
 
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
+      this._disableSubmit = disableSubmit;
       this._schema = schema;
       this._fields = {};
-      if (!props.onChange) {
-        this.state = this.initialState(props);
-      }
+      this.state = this.initialState(props);
     }
 
     componentDidMount() {
@@ -35,31 +34,33 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
     }
 
     componentWillReceiveProps(np) {
-      if (this._isMounted && !np.onChange && np.value !== this.props.value) {
+      if (this._isMounted && np.value !== this.props.value) {
         this.setState(this.initialState(np));
       }
     }
 
-    initialState({ value }) {
-      value = value || {};
-      const { version } = (this.state || {});
-      if (value && typeof value === 'object') {
-        return {
-          value: Immutable.fromJS(value),
-          version: version == null ? 0 : (version + 1)
-        };
-      } else {
-        throw new Error("Attempting to set parent form wrapper value to non-object");
+    initialState({ value, onChange }) {
+      let state = { submitIsDisabled: !!this._disableSubmit && this._disableSubmit(value) };
+      if (!onChange) {
+        value = value || {};
+        const { version } = (this.state || {});
+        if (value && typeof value === 'object') {
+          state = assign(state, {
+            value: Immutable.fromJS(value),
+            version: version == null ? 0 : (version + 1)
+          });
+        } else {
+          throw new Error("Attempting to set parent form wrapper value to non-object");
+        }
       }
+      return state;
     }
 
     getValue({ toJS = true } = {}) {
       const value = (this.state && this.state.value) || this.props.value;
-      return value && (toJS ? value.toJS() : value);
-    }
-
-    getNextKey() {
-      return this._nextKey++;
+      return value && toJS && (Map.isMap(value) || List.isList(value))
+        ? value.toJS()
+        : value;
     }
 
     getProps() {
@@ -71,7 +72,8 @@ export default ({ schema, delimiter = '.' } = {}) => WrappedComponent => {
         getValue: this.getInValue,
         getField: this.getField,
         field:    this.getField,
-        value:    this.getValue( {toJS: false} )
+        value:    this.getValue( {toJS: false} ),
+        submitIsDisabled: this.state.submitIsDisabled
       });
     }
 

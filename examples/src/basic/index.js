@@ -2,14 +2,25 @@ import React from 'react';
 import FormWrapper from '../../form-wrapper';
 import Profile from './Profile';
 import Address from './Address';
+import Immutable, { Map } from 'immutable';
 
-function MyForm ({ onSubmit, onReset, field }) {
+// *************************************
+//  NOTE
+//  submitIsDisabled and disableSubmit are a Temporary API, until validation is implemented
+// *************************************
+
+function MyForm ({ onSubmit, onReset, field, submitIsDisabled }) {
   return <form { ...{ onSubmit, onReset } }>
     <Profile { ...field('profile') } />
     <Address { ...field('address') } />
-    <button type="submit">Submit</button>
+    <button type="submit" disabled={ submitIsDisabled }>Submit</button>
     <button type="reset">Reset</button>
   </form>;
 }
 
-export default FormWrapper()(MyForm);
+function disableSubmit(value) {
+  value = Map.isMap(value) ? value : Immutable.fromJS(value);
+  return !value || !value.getIn(['profile', 'name']);
+}
+
+export default FormWrapper({ disableSubmit })(MyForm);
