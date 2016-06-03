@@ -19,7 +19,6 @@ function MyForm ({ onSubmit, onReset, field, submitIsDisabled }) {
 }
 
 function disableSubmit(value) {
-  value = Map.isMap(value) ? value : Immutable.fromJS(value);
   return !value || !value.getIn(['profile', 'name']);
 }
 

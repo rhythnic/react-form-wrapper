@@ -40,11 +40,12 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
     }
 
     initialState({ value, onChange }) {
-      let state = { submitIsDisabled: !!this._disableSubmit && this._disableSubmit(value) };
+      value = value || {};
+      let state = { submitIsDisabled: !!this._disableSubmit &&
+        this._disableSubmit(Map.isMap(value) ? value : Immutable.fromJS(value)) };
       if (!onChange) {
-        value = value || {};
         const { version } = (this.state || {});
-        if (value && typeof value === 'object') {
+        if (typeof value === 'object') {
           state = assign(state, {
             value: Immutable.fromJS(value),
             version: version == null ? 0 : (version + 1)
