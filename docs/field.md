@@ -37,20 +37,22 @@ You can also put it outside, as usual.
 <input { ...field('street') } placeholder="Street" />
 ```
 
-There are [special cases]('./special-cases') when you should include props in your call to 'field',
+There are [special cases](./special-cases.md) when you should include props in your call to 'field',
 such as when using a file input.
 
 The third argument of field is an options object.  Currently, the only option is 'toJS'.
 FormWrapper uses [Immutable.js](https://facebook.github.io/immutable-js/) to maintain
-form values.  toJS is part of the Immutable.js API. It enables you to receive a JS object when you would otherwise get a Map or a List.
+form values.  toJS is part of the Immutable.js API. It enables you to receive a JS object
+when you would otherwise get an Immutable.js object.
 
 ```
 <input { ...field('myArrayField', null, { toJS: true } )} />
 ```
 
-Immutable Lists support map and forEach, similar to arrays.  You only really
-need toJS if you're passing the value to a component that expects an array, like
-the "select" component when multiple set to "true".
+Immutable Lists support map and forEach, similar to arrays.  As of React v0.13, [React supports
+any iterable for children](https://github.com/facebook/immutable-js/wiki/Immutable-as-React-state),
+so there's little need to convert to arrays.  You only really need toJS if you're passing the
+value to a component that expects an array, like the "select" component when multiple set to "true".
 
 ```
 <select { ...field('myProp', { multiple: true }, { toJS: true }) } />
@@ -59,8 +61,9 @@ the "select" component when multiple set to "true".
 
 ### <a name="fieldAt"></a>Field.at
 
-'at' is a method of Field.  It allows you to easily call the field method for nested values.
-These two calls have the same result:
+'at' is a method of Field.  It allows you to easily call the 'field' method for nested values.
+
+*These two calls have the same result:*
 -  field('address').at('street')
 -  field('address.street')
 

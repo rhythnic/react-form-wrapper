@@ -44,18 +44,22 @@ export function normalizePatchOrEvent(patch) {
 export function changeHandler(patch) {
   patch = normalizePatchOrEvent.call(this, patch);
 
-  const { onChange } = this.props;
-  if (onChange && typeof onChange === 'function') {
-    return onChange(patch);
+  if (this.props.onChange) {
+    return this.props.onChange(patch);
   }
+
   if (!this._isMounted) { return false; }
-  this.setState({value: update(this.state.value, patch)});
+  const value = update(this.state.value, patch);
+  this.setState({
+    value,
+    submitIsDisabled: !!this._disableSubmit && this._disableSubmit(value)
+  });
 }
 
 export function submitHandler(evt) {
   evt.preventDefault();
   const {onSubmit, onChange} = this.props;
-  if (onSubmit && typeof onSubmit === 'function') {
+  if (onSubmit) {
     onSubmit(onChange ? evt : this.state.value.toJS());
   }
 }

@@ -7,7 +7,7 @@ import { buildName, buildPath } from './pure-functions';
 export default class Field {
 
   constructor(name, childName, parent) {
-    
+
     const path = buildPath(name, parent._delimiter);
 
     Object.defineProperties(this, {
@@ -93,7 +93,7 @@ export default class Field {
     if (propsCtx && (Map.isMap(propsCtx) || List.isList(propsCtx))) {
       propsError = propsCtx.getIn(this.pathToStateInParent);
     }
-    return stateError && propsError ? [ stateError, propsError ] : (stateError || propsError );
+    return stateError && propsError ? [ stateError, propsError ] : ( stateError || propsError );
   }
 
   checkIsArray() {
@@ -124,7 +124,6 @@ export default class Field {
     return assign(
       {},
       this,
-      // key needs to stay the same until reset, then change
       toJS
         ? { value: this.getValue({ toJS }) }
         : isFile
