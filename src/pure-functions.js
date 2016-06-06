@@ -59,11 +59,6 @@ export function buildPatchFromEvent(evt, { path, isArray }) {
 }
 
 
-export function buildName(parentName, childName, delimiter) {
-  return parentName ? `${parentName}${delimiter}${childName}` : childName;
-}
-
-
 export const PATH_ARRAY_RE = /\[([\d]*)\]/;
 
 export function buildPath(name, delimiter) {
@@ -81,4 +76,20 @@ export function buildPath(name, delimiter) {
     }
   }
   return path;
+}
+
+
+export function getValue({ parent, isArray, valuePath }, toJS) {
+  const ctx = parent.state.value || parent.props.value;
+  let value;
+  if (ctx && (Map.isMap(ctx) || List.isList(ctx))) {
+    value = ctx.getIn(valuePath);
+  }
+  if (value == null && isArray) {
+    value = List();
+  }
+  if (toJS && (List.isList(value) || Map.isMap(value))) {
+    return value.toJS();
+  }
+  return value == null ? '' : value;
 }

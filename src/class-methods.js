@@ -7,8 +7,7 @@
 
 import Immutable from 'immutable';
 import { update, buildPatchFromEvent } from './pure-functions';
-import Field from './field';
-
+import buildField, { extendField } from './field';
 
 export function getField(childName, props, opts) {
   const name = !this.props.name || (opts && opts.isFullName)
@@ -16,11 +15,10 @@ export function getField(childName, props, opts) {
     : `${this.props.name}${this._delimiter}${childName}`;
   let field = this._fields[name];
   if (!field) {
-    field = new Field(name, childName, this);
-    this._fields[name] = field;
+    field = this._fields[name] = buildField(name, childName, this);
   }
   return props || (opts && opts.toJS)
-    ? field.withProps(props, opts)
+    ? extendField(field, props, opts)
     : field;
 }
 
@@ -77,6 +75,7 @@ export function resetHandler(evt) {
     });
   }
 }
+
 
 
 // *************************************
