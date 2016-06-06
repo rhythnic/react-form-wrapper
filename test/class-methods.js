@@ -54,10 +54,11 @@ test('getField', function (t) {
   t.equal(result, self._fields['parent.one'], "returns field from cache");
   result = getField.call(self, 'two');
   t.equal(result, self._fields['parent.two'], "caches new fields");
-  self._fields['parent.three'] = { withProps: sinon.spy() };
-  let props = { placeholder: 'Three' };
+  self._fields['parent.three'] = { value: 1, version: 0, name: 'parent.three' };
+  let props = { type: 'file' };
   result = getField.call(self, 'three', props);
-  t.ok(self._fields['parent.three'].withProps.calledWith(props), 'returns field.withProps if props or opts present');
+  let expected = { key: 'parent.three_0', value: undefined, type: 'file', name: 'parent.three', version: 0 };
+  t.deepEqual(result, expected, ' if props or opts present, return altered field');
   t.end();
 });
 

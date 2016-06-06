@@ -4,6 +4,7 @@ import {
   createPathObjects,
   buildPatchFromEvent,
   update,
+  getValue,
   buildPath } from '../src/pure-functions';
 
 
@@ -84,6 +85,26 @@ test('update', function (t) {
   t.equal(result.get('one'), date, "Only converts plain objects");
   t.end();
 });
+
+// test('getValue', function(t) {
+//   const parent = { state: { value: Map({ 'a': true }) } }
+//   let f = { isArray: false, valuePath: ['a'], parent };
+//   let result = getValue(f);
+//   t.equal(result, true, 'It returns value in context');
+//   parent.state.value = undefined;
+//   result = getValue(f);
+//   t.equal(result, '', 'It returns empty string if no context.');
+//   parent.state.value = new Map();
+//   result = getValue(f);
+//   t.equal(result, '', 'It returns empty string if path not in context.');
+//   f = new Field(name.arrayFull, name.arrayChild, parent);
+//   f = { isArray: true, valuePath: ['a'], parent };
+//   result = getValue(f);
+//   t.ok(List.isList(result), 'It returns List if value is undefined on array field');
+//   result = getValue(f, true);
+//   t.ok(Array.isArray(result), 'It returns JS object if value is List or Map and opts.toJS is true');
+//   t.end();
+// });
 
 test('buildPath', function (t) {
   const delimiter = '.';

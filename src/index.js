@@ -66,14 +66,14 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
 
     getProps() {
       return assign({}, this.props, {
-        onSubmit: this.submitHandler,
-        onChange: this.changeHandler,
-        onReset:  this.resetHandler,
-        getName:  this.getName,
-        getValue: this.getInValue,
-        getField: this.getField,
-        field:    this.getField,
-        value:    this.getValue( {toJS: false} ),
+        onSubmit:   this.submitHandler,
+        onChange:   this.changeHandler,
+        onReset:    this.resetHandler,
+        field:      this.getField,
+        getName:    this.getName,
+        getField:   this.getField,
+        getValue:   this.getInValue,
+        value:      this.getValue( {toJS: false} ),
         submitIsDisabled: this.state.submitIsDisabled
       });
     }
