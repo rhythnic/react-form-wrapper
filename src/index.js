@@ -1,9 +1,11 @@
 import React, {Component, PropTypes, createElement} from 'react';
 import Immutable, { Map, List } from 'immutable';
 import assign from 'lodash/assign';
+import get from 'lodash/fp/get';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { methodsForWrappedComponent } from './class-methods';
 import { update as updateForm, buildPath } from './pure-functions';
+
 
 export const update = updateForm;
 
@@ -43,23 +45,20 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
       value = value || {};
       let state = { submitIsDisabled: !!this._disableSubmit &&
         this._disableSubmit(Map.isMap(value) ? value : Immutable.fromJS(value)) };
-      if (!onChange) {
-        const { version } = (this.state || {});
-        if (typeof value === 'object') {
-          state = assign(state, {
-            value: Immutable.fromJS(value),
-            version: version == null ? 0 : (version + 1)
-          });
-        } else {
-          throw new Error("Attempting to set parent form wrapper value to non-object");
-        }
+      if (onChange) { return state; }
+      const version = get('version')(this.state);
+      if (typeof value !== 'object') {
+        throw new Error("Attempting to set parent form wrapper value to non-object");
       }
-      return state;
+      return assign(state, {
+        value: Immutable.fromJS(value),
+        version: version == null ? 0 : (version + 1)
+      });
     }
 
     getValue({ toJS = true } = {}) {
-      const value = (this.state && this.state.value) || this.props.value;
-      return value && toJS && (Map.isMap(value) || List.isList(value))
+      const value = this.state.value || this.props.value;
+      return value && toJS && typeof value.toJS === 'function'
         ? value.toJS()
         : value;
     }
