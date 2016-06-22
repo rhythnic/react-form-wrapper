@@ -5,9 +5,10 @@ import { Provider } from 'react-redux';
 
 import * as data from './data';
 import App from './App';
-import Basic from './basic';
-import Arrays from './arrays';
+import BasicExample from './basic';
+import ArraysExample from './arrays';
 import ReduxExample from './redux';
+import TypesExample from './types';
 import reducer from './redux/reducer';
 
 
@@ -17,14 +18,14 @@ const store = createStore(reducer);
 const exampleForms = [
   {
     label: 'Basic',
-    component: Basic,
+    component: BasicExample,
     props: {
       value: data.basic
     }
   },
   {
     label: 'Arrays',
-    component: Arrays,
+    component: ArraysExample,
     props: {
       value: data.arrays,
       tourOptions: [ 'Blue Hole', 'Waterfall', 'Sailing' ]
@@ -36,7 +37,14 @@ const exampleForms = [
     props: {
       value: data.basic
     }
-  }
+  },
+  {
+    label: 'Types',
+    component: TypesExample,
+    props: {
+      value: {}
+    }
+  },
 ]
 
 render(

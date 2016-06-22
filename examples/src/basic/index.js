@@ -9,7 +9,7 @@ import Immutable, { Map } from 'immutable';
 //  submitIsDisabled and disableSubmit are a Temporary API, until validation is implemented
 // *************************************
 
-function MyForm ({ onSubmit, onReset, field, submitIsDisabled }) {
+function MyForm ({ onSubmit, onReset, field, submitIsDisabled, value }) {
   return <form { ...{ onSubmit, onReset } }>
     <Profile { ...field('profile') } />
     <Address { ...field('address') } />
