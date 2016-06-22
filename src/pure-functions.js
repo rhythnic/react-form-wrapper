@@ -2,7 +2,6 @@ import Immutable, {List, Map} from 'immutable';
 import flatten from 'lodash/flatten';
 import filter from 'lodash/filter';
 import get from 'lodash/fp/get';
-import getOr from 'lodash/fp/getOr';
 
 
 export function createPathObjects(state, path) {
@@ -75,7 +74,7 @@ export const buildPath = function() {
 
 export function getValue({ parent, isArray, valuePath }, toJS) {
   let value;
-  const ctx = get('value')(parent.state) || getOr(Map())('value')(parent.props);
+  const ctx = get('value')(parent.state) || get('value')(parent.props) || Map();
   if (typeof ctx === 'object' && typeof ctx.getIn === 'function') {
     value = ctx.getIn(valuePath) || value;
   }

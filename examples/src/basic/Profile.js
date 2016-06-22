@@ -15,8 +15,7 @@ function Profile({ field }) {
           placeholder="Rooms Available"
           type="number" />
         <label> Has Cable
-          <input { ...field('hasCable') }
-            type="checkbox" />
+          <input { ...field('hasCable', { type: 'checkbox' }) } />
         </label>
       </div>
       <div>

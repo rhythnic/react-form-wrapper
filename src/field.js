@@ -52,7 +52,7 @@ export default function buildField(name, childName, parent) {
     Object.defineProperty(field, 'checked', {
       get() {
         const val = this.value;
-        return typeof val === 'boolean' ? val : (val != null);
+        return typeof val === 'boolean' ? val : (val !== '');
       },
       enumerable: true
     })
@@ -66,16 +66,17 @@ export function extendField(field, props, opts) {
   props = props || {};
   opts  = opts  || {};
 
-  if (typeof props.type === 'string' && props.type.toLowerCase() === 'file') {
-    return assign(
-      {},
-      field,
-      {
-        value: undefined,
-        key: `${field.name}_${field.version}`,
-      },
-      props
-    );
+  if (typeof props.type === 'string') {
+    switch(props.type.toLowerCase()) {
+      case 'file':
+        return assign({}, field, { value: undefined, key: `${field.name}_${field.version}` }, props);
+      case 'color':
+        return assign({}, field, { value: field.value || '#000000' }, props);
+      case 'radio':
+        return assign({}, field, { checked: props.value === field.value }, props);
+      case 'checkbox':
+        return assign({}, field, { checked: field.isArray ? field.value.indexOf(props.value) > -1 : !!field.value }, props);
+    }
   }
 
   if (opts.toJS) {
