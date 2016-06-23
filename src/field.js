@@ -49,6 +49,7 @@ export default function buildField(name, childName, parent) {
     });
   } else {
     // TODO: better strategy for checked prop
+    // Depracate in favor of props option
     Object.defineProperty(field, 'checked', {
       get() {
         const val = this.value;
@@ -75,7 +76,9 @@ export function extendField(field, props, opts) {
       case 'radio':
         return assign({}, field, { checked: props.value === field.value }, props);
       case 'checkbox':
-        return assign({}, field, { checked: field.isArray ? field.value.indexOf(props.value) > -1 : !!field.value }, props);
+        return field.isArray
+          ? assign({}, field, { checked: field.value.indexOf(props.value) > -1, value: '' }, props)
+          : assign({}, field, { checked: !!field.value, value: '' }, props);
     }
   }
 
