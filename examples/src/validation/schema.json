@@ -1,29 +1,49 @@
 {
+  "id": "http://some.site.somewhere/hotel-schema#",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Hotel Schema",
   "type": "object",
   "required": [ "address", "profile" ],
   "properties": {
     "address": {
+      "title": "Address",
       "$ref": "#/definitions/Address"
     },
     "profile": {
+      "title": "Profile",
       "$ref": "#/definitions/Profile"
+    },
+    "roomsAvailable": {
+      "type": "integer",
+      "title": "Rooms Available",
+      "minimum": 0,
+      "maximum": 250
+    },
+    "hasBeachAccess": {
+      "title": "Beach Access Available",
+      "type": "boolean"
     }
   },
   "definitions": {
     "Address": {
       "type": "object",
-      "required": [ "street", "city", "country" ],
+      "required": ["streetAddress", "addressLocality", "addressRegion", "postalCode"],
       "properties": {
-        "street": {
-          "type": "string"
+        "streetAddress": {
+          "type": "string",
+          "title": "Street Address"
         },
-        "city": {
-          "type": "string"
+        "addressLocality": {
+          "type": "string",
+          "title": "City"
         },
-        "country": {
-          "type": "string"
+        "addressRegion": {
+          "type": "string",
+          "title": "State"
+        },
+        "postalCode": {
+          "type": "string",
+          "title": "Postal Code"
         }
       }
     },
@@ -32,16 +52,21 @@
       "required": [ "name", "roomCount" ],
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Name"
         },
         "roomCount": {
-          "type": "integer"
+          "type": "integer",
+          "title": "Number of Rooms in Hotel",
+          "minimum": 0
         },
-        "roomsAvailable": {
-          "type": "integer"
-        },
-        "hasCable": {
-          "type": "boolean"
+        "features": {
+          "type": "array",
+          "title": "Features",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
         }
       }
     }

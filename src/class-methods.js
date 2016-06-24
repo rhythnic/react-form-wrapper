@@ -7,8 +7,7 @@
 
 import Immutable from 'immutable';
 import { update, buildPatchFromEvent } from './pure-functions';
-import Field from './field';
-
+import buildField, { extendField } from './field';
 
 export function getField(childName, props, opts) {
   const name = !this.props.name || (opts && opts.isFullName)
@@ -16,11 +15,10 @@ export function getField(childName, props, opts) {
     : `${this.props.name}${this._delimiter}${childName}`;
   let field = this._fields[name];
   if (!field) {
-    field = new Field(name, childName, this);
-    this._fields[name] = field;
+    field = this._fields[name] = buildField(name, childName, this);
   }
   return props || (opts && opts.toJS)
-    ? field.withProps(props, opts)
+    ? extendField(field, props, opts)
     : field;
 }
 
@@ -44,10 +42,10 @@ export function normalizePatchOrEvent(patch) {
 export function changeHandler(patch) {
   patch = normalizePatchOrEvent.call(this, patch);
 
-  if (this.props.onChange) {
-    return this.props.onChange(patch);
+  const { onChange } = this.props;
+  if (onChange && typeof onChange === 'function') {
+    return onChange(patch);
   }
-
   if (!this._isMounted) { return false; }
   const value = update(this.state.value, patch);
   this.setState({
@@ -59,7 +57,7 @@ export function changeHandler(patch) {
 export function submitHandler(evt) {
   evt.preventDefault();
   const {onSubmit, onChange} = this.props;
-  if (onSubmit) {
+  if (onSubmit && typeof onSubmit === 'function') {
     onSubmit(onChange ? evt : this.state.value.toJS());
   }
 }
@@ -70,13 +68,14 @@ export function resetHandler(evt) {
   if (onReset && typeof onReset === 'function') {
     onReset(evt);
   }
-  if (this._isMounted && this.state) {
+  if (this._isMounted && this.state.value) {
     this.setState({
       value: Immutable.fromJS(this.props.value),
       version: this.state.version + 1
     });
   }
 }
+
 
 
 // *************************************

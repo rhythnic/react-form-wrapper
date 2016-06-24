@@ -7,7 +7,9 @@ forms into smaller groups of inputs.
 
 ## Installation
 
+```
 npm install --save react-form-wrapper
+```
 
 
 ## Documentation
@@ -59,8 +61,7 @@ To run the examples
 ```
 // clone repo
 npm install
-npm run build:examples
-npm run serve:examples
+npm run examples
 // localhost:8080
 // submitting a form will print the values to the console
 ```

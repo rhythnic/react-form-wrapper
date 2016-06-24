@@ -1,136 +1,95 @@
 import assign from 'lodash/assign';
 import flatten from 'lodash/flatten';
-import { List, Map } from 'immutable';
+import { buildPath, getValue } from './pure-functions';
 
-import { buildName, buildPath } from './pure-functions';
 
-export default class Field {
+export default function buildField(name, childName, parent) {
+  const path = buildPath(name, parent._delimiter);
 
-  constructor(name, childName, parent) {
+  const field = Object.defineProperties({}, {
+    name:      { value: name, enumerable: true },
+    childName: { value: childName },
+    parent:    { value: parent },
+    path:      { value: path },
+    valuePath: { value: flatten( buildPath(childName, parent._delimiter) ) },
+    isArray:   { value: Array.isArray( path[ path.length - 1 ] ) },
+    onChange:  { value: parent.changeHandler, enumerable: true },
+    value:     {
+      get() {
+        return getValue(this);
+      },
+      enumerable: true
+    },
+    version: {
+      get() {
+        return this.parent.state.version || this.parent.props.version || 0;
+      },
+      // TODO: version only enumerable when passed to fieldset
+      enumerable: true
+    },
+    at: {
+      value: function at(name, ...other) {
+        return this.parent.getField(`${this.childName}${this.parent._delimiter}${name}`, ...other);
+      }
+    }
+  });
 
-    const path = buildPath(name, parent._delimiter);
-
-    Object.defineProperties(this, {
-      parent: {
-        value: parent
-      },
-      path: {
-        value: path
-      },
-      pathToStateInParent: {
-        value: flatten( buildPath(childName, parent._delimiter) )
-      },
-      isArray: {
-        value: Array.isArray( path[ path.length - 1 ] )
-      },
-      childName: {
-        value: childName
-      },
-      name: {
-        value: name,
-        enumerable: true
-      },
-      onChange: {
-        value: parent.changeHandler,
-        enumerable: true
-      },
-      value: {
-        get() {
-          return this.getValue();
-        },
-        enumerable: true
-      },
-      checked: {
-        get() {
-          const val = this.getValue();
-          return typeof val === 'boolean' ? val : false;
-        },
-        enumerable: true
-      },
-      version: {
-        get() {
-          return parent.state ? parent.state.version : parent.props.version;
-        },
-        enumerable: true
-      },
-      key: {
-        get() {
-          return `${this.name}_${this.version}`;
+  if (field.isArray) {
+    Object.defineProperties(field, {
+      push: {
+        value: function push(value) {
+          return this.onChange({ op: 'add', path: this.path, value })
         }
       },
-      error: {
-        get() {
-          return this.getError();
-        },
-        enumerable: true
+      remove: {
+        value: function remove(index) {
+          return this.onChange({ op: 'remove', path: [...this.path, index] });
+        }
       }
     });
-
+  } else {
+    // TODO: better strategy for checked prop
+    // Depracate in favor of props option
+    Object.defineProperty(field, 'checked', {
+      get() {
+        const val = this.value;
+        return typeof val === 'boolean' ? val : (val !== '');
+      },
+      enumerable: true
+    })
   }
 
-  getValue(opts = {}) {
-    const ctx = (this.parent.state && this.parent.state.value) || this.parent.props.value;
-    let value;
-    if (ctx && (Map.isMap(ctx) || List.isList(ctx))) {
-      value = ctx.getIn(this.pathToStateInParent);
-    }
-    if (value == null && this.isArray) {
-      value = List();
-    }
-    if (opts.toJS && (List.isList(value) || Map.isMap(value))) {
-      return value.toJS();
-    }
-    return value == null ? '' : value;
-  }
+  return field;
+}
 
-  getError() {
-    const stateCtx = this.parent.state && this.parent.state.error;
-    const propsCtx = this.parent.props.error;
-    let stateError, propsError;
-    if (stateCtx && (Map.isMap(stateCtx) || List.isList(stateCtx))) {
-      stateError = stateCtx.getIn(this.pathToStateInParent);
-    }
-    if (propsCtx && (Map.isMap(propsCtx) || List.isList(propsCtx))) {
-      propsError = propsCtx.getIn(this.pathToStateInParent);
-    }
-    return stateError && propsError ? [ stateError, propsError ] : ( stateError || propsError );
-  }
 
-  checkIsArray() {
-    if (!this.isArray) {
-      throw new Error("Form Wrapper: Array functions can only be used on Array fields.")
+export function extendField(field, props, opts) {
+  props = props || {};
+  opts  = opts  || {};
+
+  if (typeof props.type === 'string') {
+    switch(props.type.toLowerCase()) {
+      case 'file':
+        return assign({}, field, { value: undefined, key: `${field.name}_${field.version}` }, props);
+      case 'color':
+        return assign({}, field, { value: field.value || '#000000' }, props);
+      case 'radio':
+        return assign({}, field, { checked: props.value === field.value }, props);
+      case 'checkbox':
+        return field.isArray
+          ? assign({}, field, { checked: field.value.indexOf(props.value) > -1, value: '' }, props)
+          : assign({}, field, { checked: !!field.value, value: '' }, props);
     }
   }
 
-  at(name, ...other) {
-    return this.parent.getField(`${this.childName}${this.parent._delimiter}${name}`, ...other);
-  }
-
-  push(value) {
-    this.checkIsArray();
-    this.onChange({ op: 'add', path: this.path, value })
-  }
-
-  remove(index) {
-    this.checkIsArray();
-    this.onChange({ op: 'remove', path: [...this.path, index] });
-  }
-
-  withProps(props, opts) {
-    props = props || {};
-    opts = opts || {};
-    const { toJS } = opts;
-    const isFile = props.type === 'file';
+  if (opts.toJS) {
     return assign(
       {},
-      this,
-      toJS
-        ? { value: this.getValue({ toJS }) }
-        : isFile
-          ? { value: undefined, key: this.key }
-          : null,
+      field,
+      { value: getValue(field, true) },
       props
     );
   }
 
+  return assign({}, field, props);
 }

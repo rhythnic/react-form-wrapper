@@ -4,6 +4,7 @@ import {
   createPathObjects,
   buildPatchFromEvent,
   update,
+  getValue,
   buildPath } from '../src/pure-functions';
 
 
@@ -84,6 +85,7 @@ test('update', function (t) {
   t.equal(result.get('one'), date, "Only converts plain objects");
   t.end();
 });
+
 
 test('buildPath', function (t) {
   const delimiter = '.';

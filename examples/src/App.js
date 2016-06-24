@@ -3,7 +3,7 @@ import React, { Component, PropTypes, createElement } from 'react';
 export default class App extends Component {
   constructor(...args) {
     super(...args);
-    this.state = { selectedExample: 3 };
+    this.state = { selectedExample: 4 };
   }
   onSubmit(data) {
     if (this.state.selectedExample === 2) { // redux example

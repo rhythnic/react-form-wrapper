@@ -6,19 +6,29 @@ module.exports = {
     'webpack/hot/only-dev-server',
     './examples/src/index.js'
   ],
+  output: {
+    path: `${__dirname}/examples/build`,
+    filename: 'bundle.js'
+  },
   module: {
-    loaders: [{
-      test: /\.js?$/,
-      exclude: /node_modules/,
-      loader: 'react-hot!babel'
-    }]
+    loaders: [
+      {
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        loader: 'react-hot!babel'
+      },
+      {
+        test: /\.json$/,
+        loader: 'json'
+      }
+    ]
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
-  output: {
-    path: `${__dirname}/examples/build`,
-    filename: 'bundle.js'
+  externals: {
+    'react': 'React',
+    'react-dom': 'ReactDOM'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin()
