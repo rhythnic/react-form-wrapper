@@ -19,6 +19,7 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
         this[method] = methodsForWrappedComponent[method].bind(this);
       }
 
+      this._isFieldset = props.onChange && typeof props.onChange === 'function';
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._disableSubmit = disableSubmit;
@@ -41,11 +42,11 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
       }
     }
 
-    initialState({ value, onChange }) {
+    initialState({ value }) {
       value = value || {};
       let state = { submitIsDisabled: !!this._disableSubmit &&
         this._disableSubmit(Map.isMap(value) ? value : Immutable.fromJS(value)) };
-      if (onChange) { return state; }
+      if (this._isFieldset) { return state; }
       const version = get('version')(this.state);
       if (typeof value !== 'object') {
         throw new Error("Attempting to set parent form wrapper value to non-object");

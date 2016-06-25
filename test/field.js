@@ -92,3 +92,39 @@ test('extendField', function(t) {
   t.ok(result.key, "props contains unique key if props.type is file");
   t.end();
 });
+
+
+test('patch', function(t) {
+  const parent = formWrapperFactory();
+  let field = buildField(name.full, name.child, parent);
+  let evt = { target: { type: 'text', value: '1' } };
+  let patch = new Map({path: field.path, op: 'replace', value: '1', isFieldPatch: true});
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(), "creates replace patch by default");
+  evt = { target: { type: 'number', value: '1' } };
+  patch = patch.merge({value: 1});
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(), "converts string values to numbers for type number");
+  evt = { target: { type: 'checkbox', checked: true } };
+  patch = patch = patch.merge({value: true});
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(), "sets non-array field to true for checked checkbox");
+  evt = { target: { type: 'checkbox', checked: false } };
+  patch = patch = patch.merge({value: false});
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(), "sets non-array field to false for unchecked checkbox");
+  field = buildField(name.arrayFull, name.arrayChild, parent);
+  evt = { target: { type: 'checkbox', value: 'a', checked: true } };
+  patch = patch.merge({ op: 'add', value: 'a', path: field.path });
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(),  "adds checked checkbox value to array field");
+  evt = { target: { type: 'checkbox', value: 'a', checked: false } };
+  patch = patch.merge({ op: 'remove' });
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(),  "removes unchecked checkbox value to array field");
+  evt = { target: {
+    type: 'select-multiple',
+    options: [
+      { value: 'a', selected: true },
+      { value: 'b', selected: false },
+      { value: 'c', selected: true }
+    ]
+  }};
+  patch = patch.merge({ op: 'replace', value: ['a', 'c'] });
+  t.deepEquals(field.patch(evt).toJS(), patch.toJS(),  "sets value to array of selected options for select-multiple");
+  t.end();
+});

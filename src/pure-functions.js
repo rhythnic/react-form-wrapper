@@ -14,9 +14,11 @@ export function createPathObjects(state, path) {
 }
 
 
-export function update (state, { op, path, value }) {
-  state = createPathObjects(state, path);
-  path = flatten(path);
+export function update (state, patch) {
+  state = createPathObjects(state, patch.get('path'));
+  const path = flatten(patch.get('path'));
+  const op = patch.get('op');
+  let value = patch.get('value');
   if (value && op !== 'remove' && typeof value === 'object') {
     value = Immutable.fromJS(value);
   }
@@ -31,26 +33,6 @@ export function update (state, { op, path, value }) {
         : state.updateIn(path, List(), xs => xs.delete(xs.indexOf(value)));
     default:
       return state;
-  }
-}
-
-
-export function buildPatchFromEvent(evt, { path, isArray }) {
-  let { type, value, checked } = evt.target;
-  const op = 'replace';
-  switch(type) {
-    case 'checkbox':
-      return isArray
-        ? { path, op: checked ? 'add' : 'remove', value }
-        : { path, op, value: checked };
-    case 'select-multiple':
-      return { path, op, value: filter(evt.target.options, 'selected').map(o => o.value) };
-    case 'number':
-      return { path, op, value: parseInt(value, 10) };
-    case 'file':
-      return { path, op, value: evt.target.files };
-    default:
-      return { path, op, value };
   }
 }
 

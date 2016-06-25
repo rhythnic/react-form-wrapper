@@ -22,26 +22,33 @@ function selfFactory() {
 test('normalizePatchOrEvent', function (t) {
   const self = selfFactory();
   let evt = { target: { name: 'one', value: 1 }, preventDefault: function() {} }
-  let patch = { op: 'replace', path: ['one'], value: 1 };
-  let result = normalizePatchOrEvent.call(self, evt);
-  t.deepEqual(result, patch, 'It normalizes event to patch');
-  const patch2 = { op: 'replace', path: 'one', value: 1 };
-  result = normalizePatchOrEvent.call(self, patch2);
-  t.deepEqual(result.path, ['one'], 'It converts string path to array form');
+  let patch = new Map({ path: ['one'], op: 'replace', isFieldPatch: true, value: 1 });
+  let result = normalizePatchOrEvent.call(self, evt, false);
+  t.deepEquals(result.toJS(), patch.toJS(), 'It normalizes event to patch');
+  patch = new Map({ op: 'replace', path: 'one', value: 1 });
+  result = normalizePatchOrEvent.call(self, patch, true);
+  t.deepEquals(result.get('path'), ['one'], 'It converts string path to array form');
+  patch = { op: 'replace', path: 'one', value: 1 };
+  const result2 = normalizePatchOrEvent.call(self, patch);
+  t.ok(Map.isMap(result2), "Converts object patch to Map");
+  patch = { path: ['one'] }
+  let fn = function() { normalizePatchOrEvent.call(self, patch); }
+  t.throws(fn, "Throws error if custom patch.path is not a string");
   t.end();
 });
 
 
 test('changeHandler', function (t) {
   const self = selfFactory();
-  let patch = { op: 'replace', path: ['one'], value: 1 };
+  let patch = { op: 'replace', path: 'one', value: 1 };
   let result = changeHandler.call(self, patch);
   let setStateArg = self.setState.getCall(0).args[0];
   let value = new Map({one: 1});
   t.ok(Immutable.is(setStateArg.value, value), 'It updates state.value by applying patch if onChange is not a prop.');
   self.props.onChange = sinon.spy();
+  self._isFieldset = true;
   result = changeHandler.call(self, patch);
-  t.ok(self.props.onChange.calledWith(patch), 'If onChange is a prop, it is invoked with the patch.');
+  t.ok(self.props.onChange.called, 'If onChange is a prop, it is invoked with the patch.');
   t.end();
 });
 

@@ -1,6 +1,8 @@
 import assign from 'lodash/assign';
 import flatten from 'lodash/flatten';
+import filter from 'lodash/filter';
 import { buildPath, getValue } from './pure-functions';
+import { Map } from 'immutable';
 
 
 export default function buildField(name, childName, parent) {
@@ -31,6 +33,28 @@ export default function buildField(name, childName, parent) {
       value: function at(name, ...other) {
         return this.parent.getField(`${this.childName}${this.parent._delimiter}${name}`, ...other);
       }
+    },
+    patch: {
+      value: function () {
+        const _patch = new Map({ path, op: 'replace', isFieldPatch: true });
+        return function patch(evt) {
+          const { value, checked } = evt.target;
+          switch(evt.target.type) {
+            case 'checkbox':
+              return this.isArray
+                ? _patch.merge({ op: checked ? 'add' : 'remove', value })
+                : _patch.set('value', checked);
+            case 'select-multiple':
+              return _patch.set('value', filter(evt.target.options, 'selected').map(o => o.value))
+            case 'number':
+              return _patch.set('value', parseInt(value, 10));
+            case 'file':
+              return _path.set('value', evt.target.files);
+            default:
+              return _patch.set('value', value);
+          }
+        }
+      }()
     }
   });
 
@@ -38,12 +62,12 @@ export default function buildField(name, childName, parent) {
     Object.defineProperties(field, {
       push: {
         value: function push(value) {
-          return this.onChange({ op: 'add', path: this.path, value })
+          return this.onChange(new Map({ op: 'add', path: this.path, value, isFieldPatch: true }))
         }
       },
       remove: {
         value: function remove(index) {
-          return this.onChange({ op: 'remove', path: [...this.path, index] });
+          return this.onChange(new Map({ op: 'remove', path: [...this.path, index], isFieldPatch: true }));
         }
       }
     });
