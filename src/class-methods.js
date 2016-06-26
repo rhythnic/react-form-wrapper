@@ -6,9 +6,9 @@
 
 
 import Immutable from 'immutable';
-import { update, buildPatchFromEvent } from './pure-functions';
+import { update, buildPatchFromEvent, buildPath } from './pure-functions';
 import buildField, { extendField } from './field';
-import { Map } from 'immutable';
+import { assign } from 'lodash';
 
 export function getField(childName, props, opts) {
   const name = !this.props.name || (opts && opts.isFullName)
@@ -23,22 +23,22 @@ export function getField(childName, props, opts) {
     : field;
 }
 
-export function normalizePatchOrEvent(x, isMap) {
+export function normalizePatchOrEvent(x) {
   // patch is either an event, or a custom patch
-  // a custom patch is either an object or a Map
-  const isEvt = !isMap && typeof x.preventDefault === 'function';
-  const path = isEvt ? x.target.name : isMap ? x.get('path') : x.path;
-  if (typeof path !== 'string') {
-    throw new Error('The path property of a custom patch should be of type string');
+  if (typeof x.preventDefault === 'function') {
+    const path = x.target.name;
+    const field = this._fields[path] || getField.call(this, path, null, { isFullName: true });
+    return field.patch(x);
   }
-  const field = this._fields[path] || getField.call(this, path, null, { isFullName: true });
-  return isEvt ? field.patch(x) : (isMap ? x : new Map(x)).set('path', field.path);
+  return assign({}, x, {
+    isNormalized: true,
+    path: Array.isArray(x.path) ? x.path : buildPath(x.path, this._delimiter)
+  });
 }
 
 export function changeHandler(patch) {
-  const isMap = Map.isMap(patch);
-  if (!isMap || !patch.get('isFieldPatch')) {
-    patch = normalizePatchOrEvent.call(this, patch, isMap);
+  if (!patch.isNormalized) {
+    patch = normalizePatchOrEvent.call(this, patch);
   }
   if (this._isFieldset) { return this.props.onChange(patch); }
   if (!this._isMounted) { return false; }

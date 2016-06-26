@@ -14,11 +14,9 @@ export function createPathObjects(state, path) {
 }
 
 
-export function update (state, patch) {
-  state = createPathObjects(state, patch.get('path'));
-  const path = flatten(patch.get('path'));
-  const op = patch.get('op');
-  let value = patch.get('value');
+export function update (state, { op, path, value }) {
+  state = createPathObjects(state, path);
+  path = flatten(path);
   if (value && op !== 'remove' && typeof value === 'object') {
     value = Immutable.fromJS(value);
   }

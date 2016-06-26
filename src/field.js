@@ -2,7 +2,6 @@ import assign from 'lodash/assign';
 import flatten from 'lodash/flatten';
 import filter from 'lodash/filter';
 import { buildPath, getValue } from './pure-functions';
-import { Map } from 'immutable';
 
 
 export default function buildField(name, childName, parent) {
@@ -36,23 +35,35 @@ export default function buildField(name, childName, parent) {
     },
     patch: {
       value: function () {
-        const _patch = new Map({ path, op: 'replace', isFieldPatch: true });
+
+        const _patch = buildPatch(path);
+
         return function patch(evt) {
-          const { value, checked } = evt.target;
+          const { value, checked, type } = evt.target;
+          _patch.op = 'replace';
+
           switch(evt.target.type) {
             case 'checkbox':
-              return this.isArray
-                ? _patch.merge({ op: checked ? 'add' : 'remove', value })
-                : _patch.set('value', checked);
+              if (this.isArray) {
+                _patch.op = checked ? 'add' : 'remove';
+              } else {
+                _patch.value = checked;
+              }
+              break;
             case 'select-multiple':
-              return _patch.set('value', filter(evt.target.options, 'selected').map(o => o.value))
+              _patch.value = filter(evt.target.options, 'selected').map(o => o.value);
+              break;
             case 'number':
-              return _patch.set('value', parseInt(value, 10));
+              _patch.value = parseInt(value, 10);
+              break;
             case 'file':
-              return _path.set('value', evt.target.files);
+              _patch.value = evt.target.files;
+              break;
             default:
-              return _patch.set('value', value);
+              _patch.value = value;
           }
+
+          return _patch;
         }
       }()
     }
@@ -61,14 +72,25 @@ export default function buildField(name, childName, parent) {
   if (field.isArray) {
     Object.defineProperties(field, {
       push: {
-        value: function push(value) {
-          return this.onChange(new Map({ op: 'add', path: this.path, value, isFieldPatch: true }))
-        }
+        value: function() {
+          const _patch = Object.defineProperty(buildPatch(path), 'op', { value: 'add', enumerable: true });
+          return function push(value) {
+            _patch.value = value;
+            this.onChange(_patch);
+          };
+        }()
       },
       remove: {
-        value: function remove(index) {
-          return this.onChange(new Map({ op: 'remove', path: [...this.path, index], isFieldPatch: true }));
-        }
+        value: function() {
+          const _patch = Object.defineProperties({}, {
+            op: { value: 'remove', enumerable: true },
+            isNormalized: { value: true }
+          });
+          return function remove(index) {
+            _patch.path = [...path, index];
+            this.onChange(_patch);
+          };
+        }()
       }
     });
   } else {
@@ -116,4 +138,11 @@ export function extendField(field, props, opts) {
   }
 
   return assign({}, field, props);
+}
+
+function buildPatch(path) {
+  return Object.defineProperties({}, {
+    path:         { value: path, enumerable: true },
+    isNormalized: { value: true }
+  });
 }
