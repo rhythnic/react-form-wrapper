@@ -1,130 +1,71 @@
 import assign from 'lodash/assign';
 import flatten from 'lodash/flatten';
-import filter from 'lodash/filter';
-import { buildPath, getValue } from './pure-functions';
+import { buildPath } from './utils';
+import { modifyPatchWithEvent, buildPatch } from './patch';
 
 
 export default function buildField(name, childName, parent) {
-  const path = buildPath(name, parent._delimiter);
+  const { delimiter } = parent.props;
+  const path = buildPath(delimiter, name);
+  const flatPath = flatten(path);
+  const isArray = Array.isArray( path[ path.length - 1 ] );
+
 
   const field = Object.defineProperties({}, {
     name:      { value: name, enumerable: true },
     childName: { value: childName },
     parent:    { value: parent },
     path:      { value: path },
-    valuePath: { value: flatten( buildPath(childName, parent._delimiter) ) },
-    isArray:   { value: Array.isArray( path[ path.length - 1 ] ) },
-    onChange:  { value: parent.changeHandler, enumerable: true },
+    flatPath: { value: flatPath },
+    pathToGetValue: { value: flatten( buildPath(delimiter, childName) ) },
+    isArray:   { value: isArray },
+    onChange:  { value: parent.onChange, enumerable: true },
     value:     {
-      get() {
-        return getValue(this);
-      },
-      enumerable: true
-    },
-    version: {
-      get() {
-        return this.parent.state.version || this.parent.props.version || 0;
-      },
-      // TODO: version only enumerable when passed to fieldset
-      enumerable: true
+      get() { return getValue(this); },
+      enumerable: true,
+      configurable: true
     },
     at: {
       value: function at(name, ...other) {
-        return this.parent.getField(`${this.childName}${this.parent._delimiter}${name}`, ...other);
+        return this.parent.getField(`${this.childName}${delimiter}${name}`, ...other);
       }
     },
     patch: {
       value: function () {
-
-        const _patch = buildPatch(path);
-
-        return function patch(evt) {
-          const { value, checked, type } = evt.target;
-          _patch.op = 'replace';
-
-          switch(evt.target.type) {
-            case 'checkbox':
-              if (this.isArray) {
-                _patch.op = checked ? 'add' : 'remove';
-              } else {
-                _patch.value = checked;
-              }
-              break;
-            case 'select-multiple':
-              _patch.value = filter(evt.target.options, 'selected').map(o => o.value);
-              break;
-            case 'number':
-              _patch.value = parseInt(value, 10);
-              break;
-            case 'file':
-              _patch.value = evt.target.files;
-              break;
-            default:
-              _patch.value = value;
-          }
-
-          return _patch;
-        }
+        const patch = buildPatch(path, flatPath);
+        return modifyPatchWithEvent(isArray)(patch);
       }()
     }
   });
 
   if (field.isArray) {
     Object.defineProperties(field, {
-      push: {
-        value: function() {
-          const _patch = Object.defineProperty(buildPatch(path), 'op', { value: 'add', enumerable: true });
-          return function push(value) {
-            _patch.value = value;
-            this.onChange(_patch);
-          };
-        }()
-      },
-      remove: {
-        value: function() {
-          const _patch = Object.defineProperties({}, {
-            op: { value: 'remove', enumerable: true },
-            isNormalized: { value: true }
-          });
-          return function remove(index) {
-            _patch.path = [...path, index];
-            this.onChange(_patch);
-          };
-        }()
-      }
+      push:   { value: pushHandlerFactory(field)   },
+      remove: { value: removeHandlerFactory(field) }
     });
-  } else {
-    // TODO: better strategy for checked prop
-    // Depracate in favor of props option
-    Object.defineProperty(field, 'checked', {
-      get() {
-        const val = this.value;
-        return typeof val === 'boolean' ? val : (val !== '');
-      },
-      enumerable: true
-    })
   }
 
   return field;
 }
 
 
-export function extendField(field, props, opts) {
-  props = props || {};
+export function extendField(field, opts) {
   opts  = opts  || {};
 
-  if (typeof props.type === 'string') {
-    switch(props.type.toLowerCase()) {
+  if (typeof opts.type === 'string') {
+    switch(opts.type.toLowerCase()) {
+      case 'fieldset':
+        return setFieldsetProperties(field);
       case 'file':
-        return assign({}, field, { value: undefined, key: `${field.name}_${field.version}` }, props);
+        return setFileFieldProperties(field);
       case 'color':
-        return assign({}, field, { value: field.value || '#000000' }, props);
+        return setColorFieldProperties(field, opts);
       case 'radio':
-        return assign({}, field, { checked: props.value === field.value }, props);
+        return assign({}, field, { checked: opts.value === field.value, value: opts.value, type: opts.type });
       case 'checkbox':
         return field.isArray
-          ? assign({}, field, { checked: field.value.indexOf(props.value) > -1, value: '' }, props)
-          : assign({}, field, { checked: !!field.value, value: '' }, props);
+          ? assign({}, field, { checked: field.value.indexOf(opts.value) > -1, value: opts.value, type: opts.type })
+          : setBooleanCheckboxFieldProperties(field)
     }
   }
 
@@ -132,17 +73,109 @@ export function extendField(field, props, opts) {
     return assign(
       {},
       field,
-      { value: getValue(field, true) },
-      props
+      { value: getValue(field, true) }
     );
   }
 
-  return assign({}, field, props);
+  return field;
 }
 
-function buildPatch(path) {
-  return Object.defineProperties({}, {
-    path:         { value: path, enumerable: true },
-    isNormalized: { value: true }
+
+export function setAlteredByTypeProp(field) {
+  return Object.defineProperty(field, 'isAlteredByType', {
+    value: true, writable: true
+  })
+}
+
+
+export function setFieldsetProperties(field) {
+  return setAlteredByTypeProp(Object.defineProperties(field, {
+    version: {
+      get() { return this.parent.state.version || this.parent.props.version || 0; },
+      enumerable: true
+    },
+    delimiter: {
+      get() { return this.parent.props.delimiter; },
+      enumerable: true
+    }
+  }));
+}
+
+
+export function setFileFieldProperties(field) {
+  return setAlteredByTypeProp(Object.defineProperties(field, {
+    key: {
+      get() { return `${this.name}_${this.version}`; },
+      enumerable: true
+    },
+    value: {
+      value: undefined,
+      enumerable: true
+    },
+    type: {
+      value: 'file',
+      enumerable: true
+    }
+  }));
+}
+
+
+export function setColorFieldProperties(field, opts) {
+  const initialColor = opts.initialColor || '#000000';
+  return setAlteredByTypeProp(Object.defineProperties(field, {
+    value: {
+      get() { return getValue(this) || initialColor; },
+      enumerable: true
+    },
+    type: {
+      value: 'color',
+      enumerable: true
+    }
+  }));
+}
+
+
+export function setBooleanCheckboxFieldProperties(field) {
+  return setAlteredByTypeProp(Object.defineProperties(field, {
+    checked: {
+      get() { return !!getValue(this); },
+      enumerable: true
+    },
+    value: {
+      value: '',
+      enumerable: true
+    },
+    type: {
+      value: 'checkbox',
+      enumerable: true
+    }
+  }));
+}
+
+
+function pushHandlerFactory({path, flatPath}) {
+  const patch = Object.defineProperty(buildPatch(path, flatPath), 'op', { value: 'add', enumerable: true });
+  return function push(value) {
+    patch.value = value;
+    this.onChange(patch);
+  };
+}
+
+
+function removeHandlerFactory({ path, flatPath }) {
+  const patch = Object.defineProperties({}, {
+    path: { value: path },
+    op: { value: 'remove', enumerable: true },
+    isPatch: { value: true }
   });
+  return function remove(index) {
+    patch.flatPath = [...flatPath, index];
+    this.onChange(patch);
+  };
+}
+
+
+export function getValue(field, toJS) {
+  const ctx = field.parent.state.value || field.parent.props.value;
+  return field.parent.immutable.getValue(field, toJS, ctx);
 }

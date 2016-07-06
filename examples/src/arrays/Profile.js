@@ -1,5 +1,5 @@
 import React from 'react';
-import FormWrapper from '../../form-wrapper';
+import FormWrapper from '../../../src';
 
 function Profile({ field }) {
   const features = field('features[]');

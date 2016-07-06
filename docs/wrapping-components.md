@@ -124,6 +124,3 @@ The options object will be used more as Form Wrapper supports validation and mor
 -  onChange
   * callback to pass to input elements
 -  [field(name [, props, options ] )]('./field')
--  getField(name [, props, options ] ) (deprecated)
--  getName(name) (deprecated)
--  getValue(name) (deprecated)

@@ -1,8 +1,7 @@
 import React from 'react';
-import FormWrapper from '../../form-wrapper';
+import FormWrapper from '../../../src';
 
 function Profile({ field }) {
-  const fileField = field('file', { type: 'file' });
   return (
     <div>
       <div>
@@ -18,10 +17,6 @@ function Profile({ field }) {
           <input { ...field('hasCable', { type: 'checkbox' }) } />
         </label>
       </div>
-      <div>
-        <input { ...fileField } />
-      </div>
-
     </div>
   );
 }

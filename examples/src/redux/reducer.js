@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { update } from '../../form-wrapper';
+import { applyPatch } from '../../../src/immutable-js-state';
 
 
 export const defaultState = Immutable.fromJS({
@@ -18,7 +18,7 @@ export default function reducer(state = defaultState, action) {
   case 'RESET_FORM':
     return state.set('myForm', state.get('data'));
   case 'UPDATE_FORM':
-    return state.set('myForm', update(state.get('myForm'), action.patch));
+    return state.set('myForm', applyPatch(state.get('myForm'), action.patch));
   default:
     return state;
   }

@@ -1,31 +1,32 @@
 import React, {Component, PropTypes, createElement} from 'react';
-import Immutable, { Map, List } from 'immutable';
-import assign from 'lodash/assign';
-import get from 'lodash/fp/get';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import { methodsForWrappedComponent } from './class-methods';
-import { update as updateForm, buildPath } from './pure-functions';
+import assign from 'lodash/assign';
+import getOr from 'lodash/fp/getOr';
+import get from 'lodash/fp/get';
+import buildField, { extendField } from './field';
+import * as immutableJS from './immutable-js-state';
 
 
-export const update = updateForm;
 
-export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedComponent => {
+export default ({ schema, immutable = immutableJS } = {}) => WrappedComponent => {
 
   class FormWrapper extends Component {
     constructor(props) {
       super(props);
 
-      for (let method in methodsForWrappedComponent) {
-        this[method] = methodsForWrappedComponent[method].bind(this);
-      }
-
-      this._isFieldset = props.onChange && typeof props.onChange === 'function';
       this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
-      this._delimiter = delimiter;
-      this._disableSubmit = disableSubmit;
-      this._schema = schema;
-      this._fields = {};
+
+      this.immutable = immutable;
+      this.schema = schema;
+      this.fieldCache = {};
+      this.onChange = this.changeHandler.bind(this);
       this.state = this.initialState(props);
+
+      this.methodProps = {
+        submitHandler: this.submitHandler.bind(this),
+        resetHandler:  this.resetHandler.bind(this),
+        field:         this.getField.bind(this)
+      };
     }
 
     componentDidMount() {
@@ -37,49 +38,78 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
     }
 
     componentWillReceiveProps(np) {
+      ['onChange', 'delimiter', 'name']
+        .filter(prop => np[prop] !== this.props[prop])
+        .forEach(prop => {
+          throw new Error(`Prop ${prop} cannot change from it's initial value.`)
+        });
       if (this._isMounted && np.value !== this.props.value) {
         this.setState(this.initialState(np));
       }
     }
 
-    initialState({ value }) {
-      value = value || {};
-      let state = { submitIsDisabled: !!this._disableSubmit &&
-        this._disableSubmit(Map.isMap(value) ? value : Immutable.fromJS(value)) };
-      if (this._isFieldset) { return state; }
-      const version = get('version')(this.state);
+    initialState(props) {
+      if (props.onChange) { return {}; }
+      const value = props.value || {};
       if (typeof value !== 'object') {
         throw new Error("Attempting to set parent form wrapper value to non-object");
       }
-      return assign(state, {
-        value: Immutable.fromJS(value),
-        version: version == null ? 0 : (version + 1)
+      return assign({}, this.state, {
+        value: this.immutable.fromJS(value),
+        version: getOr(-1)('version')(this.state) + 1
       });
     }
 
-    getValue({ toJS = true } = {}) {
-      const value = this.state.value || this.props.value;
-      return value && toJS && typeof value.toJS === 'function'
-        ? value.toJS()
-        : value;
+    getValue(opts = {}) {
+      const value = get('onChange')(this.props) ? this.props.value : get('value')(this.state);
+      return !opts.toJS ? value : this.immutable.toJS(value);
     }
 
-    getProps() {
-      return assign({}, this.props, {
-        onSubmit:   this.submitHandler,
-        onChange:   this.changeHandler,
-        onReset:    this.resetHandler,
-        field:      this.getField,
-        getName:    this.getName,
-        getField:   this.getField,
-        getValue:   this.getInValue,
-        value:      this.getValue( {toJS: false} ),
-        submitIsDisabled: this.state.submitIsDisabled
-      });
+    getField(childName, opts) {
+      const name = !this.props.name
+        ? childName
+        : `${this.props.name}${this.props.delimiter}${childName}`;
+      let field = this.fieldCache[name];
+      if (!field) {
+        field = this.fieldCache[name] = buildField(name, childName, this);
+      }
+      return field.isAlteredByType || !opts
+        ? field
+        : extendField(field, opts);
+    }
+
+    changeHandler(patch) {
+      if (!patch.isPatch) {
+        const field = this.fieldCache[patch.target.name];
+        patch = field.patch(patch);
+      }
+      if (this.props.onChange) { return this.props.onChange(patch); }
+      if (!this._isMounted) { return false; }
+      const value = this.immutable.applyPatch(this.state.value, patch);
+      this.setState({ value });
+    }
+
+    submitHandler(evt) {
+      evt.preventDefault();
+      const { onSubmit } = this.props;
+      if (onSubmit) {
+        onSubmit(this.getValue({toJS:true}), evt);
+      }
+    }
+
+    resetHandler(evt) {
+      evt.preventDefault();
+      if (this.props.onReset) { this.props.onReset(evt); }
+      if (this._isMounted) {
+        this.setState(this.initialState(this.props));
+      }
     }
 
     render() {
-      return createElement(WrappedComponent, this.getProps());
+      return createElement(
+        WrappedComponent,
+        assign({}, this.methodProps, { value: this.getValue() })
+      );
     }
   }
 
@@ -87,15 +117,13 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
     onSubmit: PropTypes.func,
     onReset: PropTypes.func,
     onChange: PropTypes.func,
+    delimiter: PropTypes.string,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    name:  PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+    name:  PropTypes.string
   }
 
   FormWrapper.defaultProps = {
-    onSubmit: null,
-    onReset: null,
-    onChange: null,
-    value: null,
+    delimiter: '.',
     name: ''
   }
 

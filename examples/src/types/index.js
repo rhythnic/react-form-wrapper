@@ -1,5 +1,5 @@
 import React from 'react';
-import FormWrapper from '../../form-wrapper';
+import FormWrapper from '../../../src';
 import Immutable, { Map } from 'immutable';
 
 const types = ["text", "color", "date", "datetime-local", "email", "file",
@@ -9,14 +9,14 @@ const styles = {
   inputContainer: { margin: '2em' }
 }
 
-function MyForm ({ onSubmit, field }) {
+function MyForm ({ submitHandler, resetHandler, field, value }) {
   return (
-    <form { ...{ onSubmit } }>
+    <form onSubmit={ submitHandler } onReset={ resetHandler }>
 
       {types.map((type, i) => (
-        <div key={ i } style={ styles.inputContainer }>
-          <input { ...field(type, { type }) } placeholder={ type } />
-        </div>
+      <div key={ i } style={ styles.inputContainer }>
+        <input { ...field(type, { type }) } type={type} placeholder={ type } />
+      </div>
       ))}
 
       <div style={ styles.inputContainer }>
@@ -25,7 +25,7 @@ function MyForm ({ onSubmit, field }) {
       </div>
 
       <div style={ styles.inputContainer }>
-        <label>checkbox <input {...field('checkbox')} type="checkbox"/></label>
+        <label>checkbox <input {...field('checkbox', {type: 'checkbox'})} /></label>
       </div>
 
       <button type="submit">Submit</button>
