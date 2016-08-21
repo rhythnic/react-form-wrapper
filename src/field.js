@@ -1,7 +1,7 @@
 import assign from 'lodash/assign';
 import flatten from 'lodash/flatten';
 import { buildPath } from './utils';
-import { modifyPatchWithEvent, buildPatch } from './patch';
+import { modifyPatchWithEvent, buildPatchBase } from './patch';
 
 
 export default function buildField(name, childName, parent) {
@@ -16,7 +16,7 @@ export default function buildField(name, childName, parent) {
     childName: { value: childName },
     parent:    { value: parent },
     path:      { value: path },
-    flatPath: { value: flatPath },
+    flatPath:  { value: flatPath },
     pathToGetValue: { value: flatten( buildPath(delimiter, childName) ) },
     isArray:   { value: isArray },
     onChange:  { value: parent.onChange, enumerable: true },
@@ -32,7 +32,7 @@ export default function buildField(name, childName, parent) {
     },
     patch: {
       value: function () {
-        const patch = buildPatch(path, flatPath);
+        const patch = buildPatchBase(path, flatPath);
         return modifyPatchWithEvent(isArray)(patch);
       }()
     }
@@ -154,7 +154,7 @@ export function setBooleanCheckboxFieldProperties(field) {
 
 
 function pushHandlerFactory({path, flatPath}) {
-  const patch = Object.defineProperty(buildPatch(path, flatPath), 'op', { value: 'add', enumerable: true });
+  const patch = Object.defineProperty(buildPatchBase(path, flatPath), 'op', { value: 'add', enumerable: true });
   return function push(value) {
     patch.value = value;
     this.onChange(patch);

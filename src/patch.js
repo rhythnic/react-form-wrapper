@@ -34,7 +34,7 @@ export const modifyPatchWithEvent = curry(function modifyPatchWithEvent(isArray,
 });
 
 
-export function buildPatch(path, flatPath) {
+export function buildPatchBase(path, flatPath) {
   return Object.defineProperties({}, {
     path: { value: path, enumerable: true },
     flatPath: { value: flatPath },

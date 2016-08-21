@@ -1,9 +1,9 @@
-import Immutable, {List, Map} from 'immutable';
+import Immutable, { List, Map } from 'immutable';
 import flatten from 'lodash/flatten';
 import curry from 'lodash/fp/curry';
 
 
-export function createPathObjects(state, path) {
+export function createPathDataStructures(state, path) {
   const setPath = [];
   return path.slice(0, -1).reduce((state, key) => {
     const isArr = Array.isArray(key);
@@ -16,7 +16,7 @@ export function createPathObjects(state, path) {
 export function applyPatch (state, { op, path, value, flatPath }) {
   flatPath = flatPath || flatten(path);
   if (!state.hasIn(flatPath)) {
-    state = createPathObjects(state, path);
+    state = createPathDataStructures(state, path);
   }
   if (value && op !== 'remove' && typeof value === 'object') {
     value = Immutable.fromJS(value);

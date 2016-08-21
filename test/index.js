@@ -8,7 +8,7 @@ import FormWrapper from '../src';
 import Immutable, { Map } from 'immutable';
 
 
-function Form({ submitHandler, resetHandler }) {
+export function Form({ submitHandler, resetHandler }) {
   return <form onSubmit={ submitHandler } onRest={ resetHandler }></form>;
 }
 
@@ -16,7 +16,7 @@ function buildEvent() {
   return { preventDefault: sinon.spy() };
 }
 
-const FW = FormWrapper()(Form);
+export const FW = FormWrapper()(Form);
 
 
 test('FormWrapper shallow', function(t) {
