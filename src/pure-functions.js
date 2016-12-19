@@ -24,7 +24,7 @@ export function update (state, { op, path, value }) {
     case 'replace':
       return state.setIn(path, value);
     case 'add':
-      return state.updateIn(path, List(), xs => xs.push(value));
+      return state.updateIn(path, xs => (xs == null ? new List([value]) : xs.push(value)));
     case 'remove':
       return value == null
         ? state.deleteIn(path)
