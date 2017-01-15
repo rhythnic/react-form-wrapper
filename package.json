@@ -1,6 +1,6 @@
 {
   "name": "react-form-wrapper",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Compose controlled forms in React.",
   "main": "lib/index.js",
   "jsnext:main": "es/index.js",
