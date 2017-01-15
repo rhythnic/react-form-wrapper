@@ -46,7 +46,7 @@ export function buildPatchFromEvent(evt, { path, isArray }) {
     case 'select-multiple':
       return { path, op, value: filter(evt.target.options, 'selected').map(o => o.value) };
     case 'number':
-      return { path, op, value: parseInt(value, 10) };
+      return { path, op, value: parseFloat(value, 10) };
     case 'file':
       return { path, op, value: evt.target.files };
     default:
