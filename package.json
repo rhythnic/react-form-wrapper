@@ -78,7 +78,7 @@
     "webpack-dev-server": "^1.14.1"
   },
   "peerDependencies": {
-    "react": "*",
+    "react": "15.x || 16.x",
     "react-addons-pure-render-mixin": "^15.0.0"
   }
 }
