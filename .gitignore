@@ -6,3 +6,5 @@ bundle.js
 dist
 lib
 es
+yarn.lock
+package-lock.json

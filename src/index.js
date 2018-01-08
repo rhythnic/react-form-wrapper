@@ -1,9 +1,8 @@
-import React, {Component, createElement} from 'react';
+import React, { createElement } from 'react';
 import PropTypes from 'prop-types';
 import Immutable, { Map, List } from 'immutable';
 import assign from 'lodash/assign';
 import get from 'lodash/fp/get';
-import PureRenderMixin from 'react-addons-pure-render-mixin';
 import { methodsForWrappedComponent } from './class-methods';
 import { update as updateForm, buildPath } from './pure-functions';
 
@@ -12,7 +11,7 @@ export const update = updateForm;
 
 export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedComponent => {
 
-  class FormWrapper extends Component {
+  class FormWrapper extends React.PureComponent {
     constructor(props) {
       super(props);
 
@@ -20,7 +19,6 @@ export default ({ schema, delimiter = '.', disableSubmit } = {}) => WrappedCompo
         this[method] = methodsForWrappedComponent[method].bind(this);
       }
 
-      this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
       this._delimiter = delimiter;
       this._disableSubmit = disableSubmit;
       this._schema = schema;
