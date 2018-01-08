@@ -1,4 +1,5 @@
-import React, {Component, PropTypes, createElement} from 'react';
+import React, {Component, createElement} from 'react';
+import PropTypes from 'prop-types';
 import Immutable, { Map, List } from 'immutable';
 import assign from 'lodash/assign';
 import get from 'lodash/fp/get';
